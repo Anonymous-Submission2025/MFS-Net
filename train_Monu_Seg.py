@@ -185,7 +185,7 @@ def main():
                 'min_miou': min_miou,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-            }, os.path.join(checkpoint_path, 'best_1.pth'))
+            }, os.path.join(checkpoint_path, 'best_2.pth'))
             
     print(f'Current max mIoU: {min_miou:.4f}')         #打印当前最大的 mIoU  
 

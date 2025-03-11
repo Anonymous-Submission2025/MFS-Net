@@ -3,3 +3,5 @@
 *.pth
 txt.txt
 *.log
+settings.json
+.gitignore
