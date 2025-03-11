@@ -1,8 +1,7 @@
 import torch
 from torch import nn
 from models.EDM import EDM
-
-from models.GCM_2 import GCM
+from models.GCM_end import GCM
 
 
 class EPFM(nn.Module):

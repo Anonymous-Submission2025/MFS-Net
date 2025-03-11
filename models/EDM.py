@@ -3,7 +3,8 @@ import torch
 import torch.nn as nn
 from models.DWT import DWT
 #from models.CFR import CFR
-from models.CFR_SF import CFR
+from models.ESN_2 import EEN
+
 
 
 class MSFA_Block(nn.Module):
@@ -28,8 +29,8 @@ class MSFA_Block(nn.Module):
 class MSFA(nn.Module):
     def __init__(self,in_channels,kernel_list=[3,9]):
         super().__init__()
-        '''
-        extract multi-scale features from different receptive fields (3×3 or 9×9) and different image sizes (original sizes, upsample, or maxpool).
+        '''S
+        extract multi-scale features from different receptive fields (3*3 or 9*9) and different image sizes (original sizes, upsample, or maxpool).
         '''
         #different image sizes and receptive fields
         self.msfa1=MSFA_Block(in_channels,kernel_list[0])
@@ -70,13 +71,14 @@ class EDM(nn.Module):
         '''
         self.msfa=MSFA(in_channels,kernel_list=kernel_list)
         self.dwt=DWT(in_channels)
-        self.cfr=CFR(in_channels)
+        # self.cfr=CFR(in_channels)
+        self.een=EEN(in_channels)
 
 
     def forward(self,x):
         x=self.msfa(x)
         x=self.dwt(x)
-        x=self.cfr(x)
+        x=self.een(x)
         return x
 
 
