@@ -2,7 +2,8 @@ import torch
 
 import torch.nn as nn
 from models.DWT import DWT
-from models.CFR import CFR
+#from models.CFR import CFR
+from models.CFR_SF import CFR
 
 
 class MSFA_Block(nn.Module):
