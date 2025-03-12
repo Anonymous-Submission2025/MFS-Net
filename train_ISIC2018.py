@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument(
         "--datasets",
         type=str,
-        default="COVID_19",
+        default="ISIC2018",
         help="input datasets name including ISIC2018, PH2, Kvasir, BUSI, COVID_19,CVC_ClinkDB,Monu_Seg",
     )
     parser.add_argument(
@@ -185,7 +185,10 @@ def main():
                 'min_miou': min_miou,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-            }, os.path.join(checkpoint_path, 'best_2.pth'))
+
+            }, os.path.join(checkpoint_path, 'best_1.pth'))
+
+
             
     print(f'Current max mIoU: {min_miou:.4f}')         #打印当前最大的 mIoU  
 

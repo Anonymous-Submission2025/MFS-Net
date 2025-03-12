@@ -121,6 +121,7 @@ def main():
     #     print("Current device ID:", torch.cuda.current_device())
     # else:
     #     print("no GPU devices")
+
     args=parse_args()
     #random
     set_seed(args.random)

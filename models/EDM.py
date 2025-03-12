@@ -1,9 +1,9 @@
 import torch
-
 import torch.nn as nn
 from models.DWT import DWT
 #from models.CFR import CFR
 from models.ESN_2 import EEN
+from models.CFR_1 import EEA
 
 
 
@@ -72,13 +72,14 @@ class EDM(nn.Module):
         self.msfa=MSFA(in_channels,kernel_list=kernel_list)
         self.dwt=DWT(in_channels)
         # self.cfr=CFR(in_channels)
-        self.een=EEN(in_channels)
+        # self.een=EEN(in_channels)
+        self.eea=EEA(in_channels)
 
 
     def forward(self,x):
         x=self.msfa(x)
         x=self.dwt(x)
-        x=self.een(x)
+        x=self.eea(x)
         return x
 
 

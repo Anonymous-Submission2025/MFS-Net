@@ -88,6 +88,20 @@ def calculate_params_flops(model,size=480,logger=None):
     logger.info(f'flops={flops/1e9}, params={params/1e6}, Total params≈{total/1e6:.2f}M')
 
 
+# def continue_train(model,optimizer,checkpoint_path):
+#     path=os.path.join(checkpoint_path,'best.pth')
+#     if not os.path.exists(path):
+#         os.makedirs(path)
+#     print(path)
+#     loaded_data = torch.load(path)
+#     start_epoch=int(loaded_data['epoch'])+1
+#     min_loss=float(loaded_data['min_miou'])
+#     model.load_state_dict(loaded_data['model_state_dict'])
+#     optimizer.load_state_dict(loaded_data['optimizer_state_dict'])
+#     print('继续训练')
+#     return model,start_epoch,min_loss,optimizer
+
+
 def continue_train(model,optimizer,checkpoint_path):
     path=os.path.join(checkpoint_path,'best.pth')
     if not os.path.exists(path):
@@ -95,10 +109,8 @@ def continue_train(model,optimizer,checkpoint_path):
     print(path)
     loaded_data = torch.load(path)
     start_epoch=int(loaded_data['epoch'])+1
-    min_loss=float(loaded_data['min_loss'])
+    min_miou=float(loaded_data['min_miou'])
     model.load_state_dict(loaded_data['model_state_dict'])
     optimizer.load_state_dict(loaded_data['optimizer_state_dict'])
     print('继续训练')
-    return model,start_epoch,min_loss,optimizer
-
-
+    return model,start_epoch,min_miou,optimizer
