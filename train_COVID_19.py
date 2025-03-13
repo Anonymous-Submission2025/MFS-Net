@@ -8,7 +8,7 @@ from utils.loss_function import BceDiceLoss
 from utils.tools import continue_train, get_logger, calculate_params_flops,set_seed
 import torch
 import argparse
-torch.cuda.set_device(0)
+torch.cuda.set_device(1)
 from micro import TEST,TRAIN
 
 
@@ -24,7 +24,7 @@ def parse_args():
     parser.add_argument(
         "--batchsize",
         type=int,
-        default="8",
+        default="8", 
         help="input batch_size",
     )
     parser.add_argument(
@@ -115,7 +115,7 @@ def parse_args():
 
 
 def main():
-    #init GPU
+    # init GPU
     # if torch.cuda.is_available():
     #     torch.cuda.set_device(args.gpu)
     #     print("Current device ID:", torch.cuda.current_device())

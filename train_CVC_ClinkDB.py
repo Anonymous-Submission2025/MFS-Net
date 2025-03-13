@@ -8,7 +8,7 @@ from utils.loss_function import BceDiceLoss
 from utils.tools import continue_train, get_logger, calculate_params_flops,set_seed
 import torch
 import argparse
-torch.cuda.set_device(0)
+torch.cuda.set_device(2)
 from micro import TEST,TRAIN
 
 

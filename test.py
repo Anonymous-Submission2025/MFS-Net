@@ -9,7 +9,7 @@ from utils.tools import continue_train, get_logger, calculate_params_flops,set_s
 import torch
 import argparse
 
-from mirco import TEST,TRAIN
+from micro import TEST,TRAIN
 
 def parse_args():
     parser = argparse.ArgumentParser()

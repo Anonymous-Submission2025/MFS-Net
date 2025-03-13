@@ -190,7 +190,7 @@ def main():
 
 
             
-    print(f'Current max mIoU: {max_miou:.4f}')         #打印当前最大的 mIoU  
+    print(f'Current max mioU: {max_miou:.4f}')         #打印当前最大的 mIoU  
 
 if __name__ == '__main__':
     main()

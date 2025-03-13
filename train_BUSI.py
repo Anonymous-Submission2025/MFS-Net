@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument(
         "--datasets",
         type=str,
-        default="BUSI",
+        default="BUSI_alter",
         help="input datasets name including ISIC2018, PH2, Kvasir, BUSI, COVID_19,CVC_ClinkDB,Monu_Seg",
     )
     parser.add_argument(

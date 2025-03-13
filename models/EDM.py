@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from models.DWT import DWT
-from models.EEN import EEA
+from models.EEN_light_weight import EEA
 
 
 
@@ -69,8 +69,6 @@ class EDM(nn.Module):
         '''
         self.msfa=MSFA(in_channels,kernel_list=kernel_list)
         self.dwt=DWT(in_channels)
-        # self.cfr=CFR(in_channels)
-        # self.een=EEN(in_channels)
         self.eea=EEA(in_channels)
 
 

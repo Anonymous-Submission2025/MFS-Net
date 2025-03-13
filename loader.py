@@ -8,7 +8,7 @@ sys.path.append(os.getcwd())
 from utils.transforms import Test_Transformer, Train_Transformer
 from torch.utils.data import DataLoader
 
-from dataset.dataset import ISIC2018_Datasets,PH2_Datasets,BUSI_Datasets,Kvasir_Datasets,COVID_19_Datasets,CVC_ClinkDB_Datasets,Monu_Seg_Datasets
+from dataset.dataset import ISIC2018_Datasets,PH2_Datasets,BUSI_Datasets,BUSI_alter_Datasets,Kvasir_Datasets,COVID_19_Datasets,CVC_ClinkDB_Datasets,Monu_Seg_Datasets
 def get_loader(datasets,batch_size,image_size,mode):
     #set batchsize
     if mode==TRAIN:
@@ -23,10 +23,10 @@ def get_loader(datasets,batch_size,image_size,mode):
         dataset=PH2_Datasets(mode=mode,transformer=transformer)
     elif datasets=='Kvasir':
         dataset=Kvasir_Datasets(mode=mode,transformer=transformer)
-    elif datasets=='BUSI':
-        dataset=BUSI_Datasets(mode=mode,transformer=transformer)
     elif datasets=='BUSI_alter':
         dataset=BUSI_Datasets(mode=mode,transformer=transformer)
+    elif datasets=='BUSI_alter':
+        dataset=BUSI_alter_Datasets(mode=mode,transformer=transformer)
     elif datasets=='COVID_19':
         dataset=COVID_19_Datasets(mode=mode,transformer=transformer)
     elif datasets=='CVC_ClinkDB':
