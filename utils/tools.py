@@ -95,7 +95,7 @@ def calculate_params_flops(model,size=480,logger=None):
 #     print(path)
 #     loaded_data = torch.load(path)
 #     start_epoch=int(loaded_data['epoch'])+1
-#     min_loss=float(loaded_data['min_miou'])
+#     min_loss=float(loaded_data['max_miou'])
 #     model.load_state_dict(loaded_data['model_state_dict'])
 #     optimizer.load_state_dict(loaded_data['optimizer_state_dict'])
 #     print('继续训练')
@@ -109,8 +109,8 @@ def continue_train(model,optimizer,checkpoint_path):
     print(path)
     loaded_data = torch.load(path)
     start_epoch=int(loaded_data['epoch'])+1
-    min_miou=float(loaded_data['min_miou'])
+    max_miou=float(loaded_data['max_miou'])
     model.load_state_dict(loaded_data['model_state_dict'])
     optimizer.load_state_dict(loaded_data['optimizer_state_dict'])
     print('继续训练')
-    return model,start_epoch,min_miou,optimizer
+    return model,start_epoch,max_miou,optimizer

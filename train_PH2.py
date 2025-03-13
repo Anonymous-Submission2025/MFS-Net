@@ -154,12 +154,12 @@ def main():
             last_epoch = -1
         )
     start_epoch=0
-    min_miou=0
+    max_miou=0
     #continue to train
     if args.continues:
-        model,start_epoch,min_miou,optimizer=continue_train(model,optimizer,checkpoint_path)
+        model,start_epoch,max_miou,optimizer=continue_train(model,optimizer,checkpoint_path)
         lr=optimizer.state_dict()['param_groups'][0]['lr']
-        print(f'start_epoch={start_epoch},min_miou={min_miou},lr={lr}')
+        print(f'start_epoch={start_epoch},max_miou={max_miou},lr={lr}')
     #training setsin_channels
 
     train_loader=get_loader(args.datasets,args.batchsize,args.imagesize,mode=TRAIN)
@@ -176,13 +176,13 @@ def main():
         loss,miou=val_epoch(val_loader,model,criterion,logger)
 
         #check current mIoU
-        if miou>min_miou:
+        if miou>max_miou:
             print('save best.pth')
-            min_miou=miou
+            max_miou=miou
             torch.save(
             {
                 'epoch': epoch,
-                'min_miou': min_miou,
+                'max_miou': max_miou,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
 
@@ -190,7 +190,7 @@ def main():
 
 
             
-    print(f'Current max mIoU: {min_miou:.4f}')         #打印当前最大的 mIoU  
+    print(f'Current max mIoU: {max_miou:.4f}')         #打印当前最大的 mIoU  
 
 if __name__ == '__main__':
     main()

@@ -145,12 +145,12 @@ def main():
             amsgrad = False
         )
     start_epoch=0
-    min_miou=0
+    max_miou=0
     #continue to train
     if args.continues:
-        model,start_epoch,min_miou,optimizer=continue_train(model,optimizer,checkpoint_path)
+        model,start_epoch,max_miou,optimizer=continue_train(model,optimizer,checkpoint_path)
         lr=optimizer.state_dict()['param_groups'][0]['lr']
-        print(f'start_epoch={start_epoch},min_miou={min_miou},lr={lr}')
+        print(f'start_epoch={start_epoch},max_miou={max_miou},lr={lr}')
     #testing sets
     val_loader=get_loader(args.datasets,args.batchsize,args.imagesize,mode=TEST)
     end_epoch=args.epoch

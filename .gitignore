@@ -3,6 +3,7 @@
 *.pth
 txt.txt
 *.log
+*.log.*
 settings.json
 .gitignore
 FETCH_HEAD

@@ -1,9 +1,7 @@
 import torch
 import torch.nn as nn
 from models.DWT import DWT
-#from models.CFR import CFR
-from models.ESN_2 import EEN
-from models.CFR_1 import EEA
+from models.EEN import EEA
 
 
 
