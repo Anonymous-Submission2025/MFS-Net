@@ -6,6 +6,8 @@ import random
 import torch
 import torch.backends.cudnn as cudnn
 from matplotlib import pyplot as plt
+import torch
+from thop import profile
 
 def get_logger(name, log_dir):
     '''
@@ -76,8 +78,7 @@ def get_scheduler(config, optimizer):
 
 
 
-import torch
-from thop import profile
+
 def calculate_params_flops(model,size=480,logger=None):
     input = torch.randn(1, 3, size, size).cuda()
     flops, params = profile(model, inputs=(input,))

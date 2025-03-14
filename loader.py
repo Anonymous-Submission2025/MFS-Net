@@ -23,7 +23,7 @@ def get_loader(datasets,batch_size,image_size,mode):
         dataset=PH2_Datasets(mode=mode,transformer=transformer)
     elif datasets=='Kvasir':
         dataset=Kvasir_Datasets(mode=mode,transformer=transformer)
-    elif datasets=='BUSI_alter':
+    elif datasets=='BUSI':
         dataset=BUSI_Datasets(mode=mode,transformer=transformer)
     elif datasets=='BUSI_alter':
         dataset=BUSI_alter_Datasets(mode=mode,transformer=transformer)

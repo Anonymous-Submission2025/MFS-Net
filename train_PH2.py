@@ -24,7 +24,7 @@ def parse_args():
     parser.add_argument(
         "--batchsize",
         type=int,
-        default="8",
+        default="6",
         help="input batch_size",
     )
     parser.add_argument(
@@ -42,7 +42,7 @@ def parse_args():
     parser.add_argument(
         "--continues",
         type=int,
-        default=1,
+        default=0,
         help="1: continue to run; 0: don't continue to run",
     )
     parser.add_argument(
@@ -175,7 +175,7 @@ def main():
         # validate model
         loss,miou=val_epoch(val_loader,model,criterion,logger)
 
-        #check current mIoU
+        #check current mioU
         if miou>max_miou:
             print('save best.pth')
             max_miou=miou
@@ -186,7 +186,7 @@ def main():
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
 
-            }, os.path.join(checkpoint_path, 'best_1.pth'))
+            }, os.path.join(checkpoint_path, 'best_2.pth'))
 
 
             

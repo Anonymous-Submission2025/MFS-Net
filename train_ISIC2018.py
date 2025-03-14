@@ -8,7 +8,7 @@ from utils.loss_function import BceDiceLoss
 from utils.tools import continue_train, get_logger, calculate_params_flops,set_seed
 import torch
 import argparse
-torch.cuda.set_device(0)
+torch.cuda.set_device(5)
 from micro import TEST,TRAIN
 
 
@@ -186,7 +186,7 @@ def main():
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
 
-            }, os.path.join(checkpoint_path, 'best_1.pth'))
+            }, os.path.join(checkpoint_path, 'best_2.pth'))
 
 
             

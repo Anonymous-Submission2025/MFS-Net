@@ -80,8 +80,8 @@ class ISIC2018_Datasets(Dataset):
             image, gt = self.transformer((image, gt))  # 应用变换
             
             # 将数据转移到CUDA设备上
-            image = image.to('cuda:0')
-            gt = gt.to('cuda:0')
+            image = image.to('cuda:3')
+            gt = gt.to('cuda:3')
             
             if self.mode == TEST:
                 data_buf.append([image, gt, image_path.split('/')[-1]])  # 缓存测试数据
@@ -254,7 +254,7 @@ class BUSI_Datasets(Dataset):
 
         if mode==TRAIN:
             self.data=self.data[:685]
-        if mode==TEST:
+        elif mode==TEST:
             self.data=self.data[685:857]
         
         self.transformer=transformer
@@ -426,7 +426,7 @@ class Kvasir_Datasets(Dataset):
 class COVID_19_Datasets(Dataset):
     def __init__(self,mode,transformer):
         super().__init__()
-        cwd='/home/wjj/ACM_MM/Datsets'
+        cwd=proj_path+'/Datsets'
         self.mode=mode
         gts_path=os.path.join(cwd,'data','COVID_19','COVID-19_Lung_Infection_train','COVID-19_Lung_Infection_train','masks')
         images_path=os.path.join(cwd,'data','COVID_19','COVID-19_Lung_Infection_train','COVID-19_Lung_Infection_train','images')
