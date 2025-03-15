@@ -8,7 +8,7 @@ from utils.loss_function import BceDiceLoss
 from utils.tools import continue_train, get_logger, calculate_params_flops,set_seed
 import torch
 import argparse
-torch.cuda.set_device(1)
+torch.cuda.set_device(3)
 from micro import TEST,TRAIN
 
 
@@ -24,7 +24,7 @@ def parse_args():
     parser.add_argument(
         "--batchsize",
         type=int,
-        default="6",
+        default="2",
         help="input batch_size",
     )
     parser.add_argument(
@@ -185,7 +185,7 @@ def main():
                 'max_miou': max_miou,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-            }, os.path.join(checkpoint_path, 'best_3.pth'))
+            }, os.path.join(checkpoint_path, 'best_4.pth'))
             
     print(f'Current max mioU: {max_miou:.4f}')         #打印当前最大的 mIoU  
 

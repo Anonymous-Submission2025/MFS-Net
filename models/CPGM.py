@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-class GCM(nn.Module):
+class CPGM(nn.Module):
     def __init__(self, input_channels=3):
         super().__init__()
         # PGC 模块
@@ -74,13 +74,13 @@ class GCM(nn.Module):
         x_K = prompt_l.view(B, C, N).permute(0, 2, 1).contiguous()  # 变形低频提示为(B, N, C)
         x_Q = prompt_h.view(B, C, N).permute(0, 2, 1).contiguous()  # 变形高频提示为(B, N, C)
         x_attn = x_Q @ x_K.transpose(1, 2)  # 计算注意力矩阵(B, N, N)
-        prompt = self.soft(x_attn * self.scale) @ x_V  # 应用软max和缩放得到注意力加权的值
+        prompt = self.soft(x_attn * self.scale) @ x_V  # 应用softmax和缩放得到注意力加权的值
         prompt = self.linear_p(prompt) + x_V  # 通过线性层得到最终提示，并与原始值相加
         p_norm = self.norm(prompt)  # 对提示进行归一化处理
         p_norm = p_norm.permute(0, 2, 1).contiguous().view(B, C, H, W)  # 变形回(B, C, H, W)格式
         p_norm = self.up(p_norm)  # 上采样到原始输入尺寸
         out = self.dsc(p_norm) + p_norm  # 通过深度可分离卷积处理并与上采样的提示相加
-        return out  # 返回增强后的输出
+        return out  # 返回增强后的输出 
 
     def forward(self, x: torch.Tensor):
         x = self.pool(x)
@@ -92,6 +92,6 @@ class GCM(nn.Module):
 # 示例用法
 if __name__ == "__main__":
     input_tensor = torch.randn(8, 3, 32, 32)  # 8个样本，3个通道，32x32的输入图像
-    model = GCM(input_channels=3)
+    model = CPGM(input_channels=3)
     output = model(input_tensor)
     print(output.shape)  # 应该输出 (8, 3, 32, 32)，表示8个样本的输出

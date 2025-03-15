@@ -80,8 +80,8 @@ class ISIC2018_Datasets(Dataset):
             image, gt = self.transformer((image, gt))  # 应用变换
             
             # 将数据转移到CUDA设备上
-            image = image.to('cuda:3')
-            gt = gt.to('cuda:3')
+            image = image.cpu()
+            gt = gt.cpu()    
             
             if self.mode == TEST:
                 data_buf.append([image, gt, image_path.split('/')[-1]])  # 缓存测试数据
