@@ -8,7 +8,7 @@ from utils.loss_function import BceDiceLoss
 from utils.tools import continue_train, get_logger, calculate_params_flops,set_seed
 import torch
 import argparse
-torch.cuda.set_device(2)
+torch.cuda.set_device(1)
 from micro import TEST,TRAIN
 
 
@@ -185,7 +185,7 @@ def main():
                 'max_miou': max_miou,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-            }, os.path.join(checkpoint_path, 'best_2.pth'))
+            }, os.path.join(checkpoint_path, 'best_3.pth'))
             
     print(f'Current max mIoU: {max_miou:.4f}')         #打印当前最大的 mIoU  
 

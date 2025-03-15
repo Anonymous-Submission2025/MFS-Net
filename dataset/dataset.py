@@ -278,7 +278,6 @@ class BUSI_Datasets(Dataset):
     def __len__(self):
         return len(self.data)
 
-
 class Kvasir_Datasets(Dataset):
     def __init__(self,mode,transformer):
         super().__init__()
@@ -303,26 +302,118 @@ class Kvasir_Datasets(Dataset):
         elif mode==TEST:
             self.data=self.data[880:1000]
 
-        print(len(self.data))
+            
+        self.data_buf = self.cuda_buffer()  # 将数据预加载到CUDA内存中
+        print(len(self.data))  # 打印数据集大小
 
+    def getitem_val(self, index):
+        # 获取验证集的图像和真值
+        image_path, gt_path = self.data[index]  # 根据索引获取路径
+        image = Image.open(image_path).convert('RGB')  # 读取图像并转换为RGB模式
+        image = np.array(image)  # 转换为NumPy数组
+        image = np.transpose(image, axes=(2, 0, 1))  # 调整维度为(C, H, W)
+        gt = Image.open(gt_path).convert('L')  # 读取真值图并转换为灰度模式
+        gt = np.array(gt)  # 转换为NumPy数组
+        gt = np.expand_dims(gt, axis=2) / 255  # 扩展维度并归一化
+        gt = np.transpose(gt, axes=(2, 0, 1))  # 调整维度为(C, H, W)
+        image, gt = self.transformer((image, gt))  # 应用变换
+        
+        if self.mode == TEST:
+            return image, gt, image_path.split('/')[-1]  # 返回图像、真值和图像名称
+        return image, gt  # 返回图像和真值
+
+    # 将数据集加载到内存中，提高训练速度
+    def cuda_buffer(self):
+        data_buf = []  # 初始化数据缓存
+        id = 0  # ID计数器
+        for data in self.data:
+            image_path, gt_path = data  # 解构路径
+            image = Image.open(image_path).convert('RGB')  # 读取图像
+            image = np.array(image)  # 转换为NumPy数组
+            image = np.transpose(image, axes=(2, 0, 1))  # 调整维度为(C, H, W)
+            gt = Image.open(gt_path).convert('L')  # 读取真值图
+            gt = np.array(gt)  # 转换为NumPy数组
+            gt = np.expand_dims(gt, axis=2) / 255  # 扩展维度并归一化
+            gt = np.transpose(gt, axes=(2, 0, 1))  # 调整维度为(C, H, W)
+            image, gt = self.transformer((image, gt))  # 应用变换
+            
+            # 将数据转移到CUDA设备上
+            image = image.cpu()
+            gt = gt.cpu()    
+            
+            if self.mode == TEST:
+                data_buf.append([image, gt, image_path.split('/')[-1]])  # 缓存测试数据
+            else:
+                data_buf.append([image, gt])  # 缓存训练数据
+            
+            # 每处理20个样本打印一次进度
+            if id % 20 == 0:
+                print(id)
+            id += 1
+        
+        return data_buf  # 返回数据缓存
 
     def __getitem__(self, index):
-        image_path, gt_path=self.data[index]
-        image = Image.open(image_path).convert('RGB')
-        image=np.array(image)
-        image = np.transpose(image, axes=(2, 0, 1))
-        gt = Image.open(gt_path).convert('L')
-        gt = np.array(gt)
-        gt=np.expand_dims(gt, axis=2) / 255
-        gt = np.transpose(gt, axes=(2, 0, 1))
-        image, gt = self.transformer((image, gt))
-        if self.mode==TEST:
-            return image,gt,image_path.split('/')[-1]
-        return image,gt
-    
+        # 根据索引返回样本
+        if self.mode != TEST:
+            image, gt = self.data_buf[index]  # 从缓存中获取训练数据
+            image = image.cpu()  # 转回CPU
+            gt = gt.cpu()  # 转回CPU
+            return image, gt  # 返回图像和真值
+        else:
+            image, gt, image_name = self.data_buf[index]  # 从缓存中获取测试数据
+            image = image.cpu()  # 转回CPU
+            gt = gt.cpu()  # 转回CPU
+            return image, gt, image_name  # 返回图像、真值和图像名称
 
     def __len__(self):
+        # 返回数据集大小
         return len(self.data)
+
+# class Kvasir_Datasets(Dataset):
+#     def __init__(self,mode,transformer):
+#         super().__init__()
+#         cwd=proj_path+'/Datsets'
+#         self.mode=mode
+#         gts_path=os.path.join(cwd,'data','Kvasir','kvasir-seg','Kvasir-SEG','masks')
+#         images_path=os.path.join(cwd,'data','Kvasir','kvasir-seg','Kvasir-SEG','images')
+
+#         images_list=sorted(os.listdir(images_path))
+#         images_list = [item for item in images_list if "jpg" in item]
+#         gts_list=sorted(os.listdir(gts_path))
+#         gts_list = [item for item in gts_list if "jpg" in item]
+#         self.data=[]
+#         for i in range(len(images_list)):
+#             image_path=images_path+'/'+images_list[i]
+#             mask_path=gts_path+'/'+gts_list[i]
+#             self.data.append([image_path, mask_path])
+#         self.transformer=transformer
+#         random.shuffle(self.data)
+#         if mode==TRAIN:
+#             self.data=self.data[:880]
+#         elif mode==TEST:
+#             self.data=self.data[880:1000]
+
+#         print(len(self.data))
+
+
+#     def __getitem__(self, index):
+#         image_path, gt_path=self.data[index]
+#         image = Image.open(image_path).convert('RGB')
+#         image=np.array(image)
+#         image = np.transpose(image, axes=(2, 0, 1))
+#         gt = Image.open(gt_path).convert('L')
+#         gt = np.array(gt)
+#         gt=np.expand_dims(gt, axis=2) / 255
+#         gt = np.transpose(gt, axes=(2, 0, 1))
+#         image, gt = self.transformer((image, gt))
+#         if self.mode==TEST:
+#             return image,gt,image_path.split('/')[-1]
+#         return image,gt
+    
+
+#     def __len__(self):
+#         return len(self.data)
 
 
 # class COVID_19_Datasets(Dataset):
