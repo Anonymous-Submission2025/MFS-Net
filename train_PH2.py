@@ -8,7 +8,7 @@ from utils.loss_function import BceDiceLoss
 from utils.tools import continue_train, get_logger, calculate_params_flops,set_seed
 import torch
 import argparse
-torch.cuda.set_device(0)
+torch.cuda.set_device(5)
 from micro import TEST,TRAIN
 
 
@@ -42,7 +42,7 @@ def parse_args():
     parser.add_argument(
         "--continues",
         type=int,
-        default=0,
+        default=1,
         help="1: continue to run; 0: don't continue to run",
     )
     parser.add_argument(
@@ -162,20 +162,41 @@ def main():
         print(f'start_epoch={start_epoch},max_miou={max_miou},lr={lr}')
     #training setsin_channels
 
-    train_loader=get_loader(args.datasets,args.batchsize,args.imagesize,mode=TRAIN)
+    # train_loader=get_loader(args.datasets,args.batchsize,args.imagesize,mode=TRAIN)
     #testing sets
     val_loader=get_loader(args.datasets,args.batchsize,args.imagesize,mode=TEST)
     end_epoch=args.epoch
     steps=0
     #start to run the model
+    # for epoch in range(start_epoch, end_epoch):
+    #     torch.cuda.empty_cache()        #用于清空显存，释放未使用的显存，以减少内存占用并防止内存溢出
+    #     #train model
+    #     steps=train_epoch(train_loader,model,criterion,optimizer,scheduler,epoch, steps,logger,save_cycles=args.save_cycles)
+    #     # validate model
+    #     loss,miou=val_epoch(val_loader,model,criterion,logger)
+
+    #     #check current mioU
+    #     if miou>max_miou:
+    #         print('save best.pth')
+    #         max_miou=miou
+    #         torch.save(
+    #         {
+    #             'epoch': epoch,
+    #             'max_miou': max_miou,
+    #             'model_state_dict': model.state_dict(),
+    #             'optimizer_state_dict': optimizer.state_dict(),
+
+    #         }, os.path.join(checkpoint_path, 'best_3.pth'))
+
+    #start to run the model--迁移学习
     for epoch in range(start_epoch, end_epoch):
-        torch.cuda.empty_cache()        #用于清空显存，释放未使用的显存，以减少内存占用并防止内存溢出
-        #train model
-        steps=train_epoch(train_loader,model,criterion,optimizer,scheduler,epoch, steps,logger,save_cycles=args.save_cycles)
-        # validate model
+    #     torch.cuda.empty_cache()        #用于清空显存，释放未使用的显存，以减少内存占用并防止内存溢出
+    #     #train model
+    #     steps=train_epoch(train_loader,model,criterion,optimizer,scheduler,epoch, steps,logger,save_cycles=args.save_cycles)
+    #     # validate model
         loss,miou=val_epoch(val_loader,model,criterion,logger)
 
-        #check current mioU
+    #     #check current mioU
         if miou>max_miou:
             print('save best.pth')
             max_miou=miou
@@ -186,9 +207,7 @@ def main():
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
 
-            }, os.path.join(checkpoint_path, 'best_2.pth'))
-
-
+            }, os.path.join(checkpoint_path, 'best_3.pth'))
             
     print(f'Current max mIoU: {max_miou:.4f}')         #打印当前最大的 mIoU  
 

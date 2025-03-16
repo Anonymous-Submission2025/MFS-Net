@@ -65,7 +65,7 @@ class EDM(nn.Module):
         '''
         MSFA: multi-scale features
         DWT: multi-frequency features
-        CRB: learning deform
+        EEN: learning deform
         '''
         self.msfa=MSFA(in_channels,kernel_list=kernel_list)
         self.dwt=DWT(in_channels)

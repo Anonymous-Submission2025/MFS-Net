@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from models.EDM import EDM
-from models.CPGM_2 import CPGM
+from models.CPGM_3 import CPGM
 import torch.nn.functional as F
 
 class EPFM(nn.Module):
@@ -50,7 +50,7 @@ class EPFM(nn.Module):
         # 打印每个张量的形状
         # print("Before concatenation:")
         # print("x_edm shape:", x_edm.shape)            # (4, 10, 256, 256)
-        # print("x_CPGM_resized shape:", x_CPGM.shape)  # (4, 10, 256, 256)
+        # print("x_CPGM_resized shape:", x_CPGM_resized.shape)  # (4, 10, 256, 256)
 
         # 拼接
         x_cat = torch.cat([x_edm, x_CPGM], dim=1)  # 在通道维度上拼接
