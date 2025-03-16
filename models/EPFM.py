@@ -1,8 +1,8 @@
 import torch
 from torch import nn
 from models.EDM import EDM
-from models.CPGM_1 import EEN
-
+from models.CPGM_2 import CPGM
+import torch.nn.functional as F
 
 class EPFM(nn.Module):
     def __init__(self, in_channels, out_channels, sample, up=True, kernel_list=[3, 9]):
@@ -12,7 +12,7 @@ class EPFM(nn.Module):
         self.edm = EDM(in_channels, kernel_list=kernel_list)
         
         # 定义全局上下文模块 CPGM，使用指定的输入通道数
-        self.CPGM = EEN(in_channels)
+        self.CPGM = CPGM(in_channels)
         
         # 定义多层感知机 MLP 结构
         self.mlp = nn.Sequential(
@@ -40,18 +40,25 @@ class EPFM(nn.Module):
         x_edm = self.edm(x)  # 通过 EDM 模块处理输入 x
         x_CPGM = self.CPGM(x)  # 通过 CPGM 模块处理输入 x
         
-        # 将两个模块的输出在通道维度上拼接
-        x_cat = torch.cat([x_edm, x_CPGM], dim=1)
+        # print("x_edm shape:", x_edm.shape)  # 打印 x_edm 的形状
+        # print("x_CPGM shape:", x_CPGM.shape)  # 打印 x_CPGM 的形状
+
+
+        # 将 x_CPGM 调整为与 x_edm 相同的大小
+        # x_CPGM_resized = F.interpolate(x_CPGM, size=(256, 256), mode='bilinear', align_corners=True)
+
+        # 打印每个张量的形状
+        # print("Before concatenation:")
+        # print("x_edm shape:", x_edm.shape)            # (4, 10, 256, 256)
+        # print("x_CPGM_resized shape:", x_CPGM.shape)  # (4, 10, 256, 256)
+
+        # 拼接
+        x_cat = torch.cat([x_edm, x_CPGM], dim=1)  # 在通道维度上拼接
+        # print("Concatenated shape:", x_cat.shape)
         
+
+        # print(f"x_cat shape: {x_cat.shape}")  # 应该是 [B, in_channels * 2, H, W]
         # 通过 MLP 处理拼接后的特征 
-        '''
-        MLP作用:
-        1.特征融合:MLP接收来自EDM和CPGM模块的拼接特征(通道维度拼接）,通过1x1卷积和非线性变换,将这些特征融合成更高级的表示。
-        2.维度变换:通过一系列的卷积层和激活函数,MLP将输入特征映射到目标输出通道数(out_channels),同时保持特征图的空间维度不变。
-        3.非线性映射强:通过GELU激活函数,MLP引入了非线性变换,增强了模型的表达能力,使其能够学习更复杂的特征关系。
-        4.特征归一化:通过BatchNorm层,MLP对特征进行归一化处理,有助于稳定训练过程并加速收敛。
-        总结来说,MLP在这个模型中的作用是对EDM和CPGM模块提取的特征进行进一步的融合、变换和增强,从而得到更适合后续任务的特征表示。
-        '''
         x = self.mlp(x_cat)
         
         # 如果 sample 不为 None，则进行上采样或下采样
@@ -59,3 +66,18 @@ class EPFM(nn.Module):
             x = self.sample(x)
         
         return x  # 返回处理后的输出)
+    
+
+if __name__ == "__main__":
+    input_tensor = torch.randn(8, 3, 32, 32)  # 8个样本，3个通道，32x32的输入图像
+    edm_model = EDM(input_channels=3)
+    cpgm_model = CPGM(input_channels=256)  # 假设 CPGM 输入 256 通道
+    x_edm = edm_model(input_tensor)
+    x_CPGM = cpgm_model(input_tensor)
+
+    print("x_edm shape:", x_edm.shape)  # 应输出 (8, 256, H, W)
+    print("x_CPGM shape:", x_CPGM.shape)  # 应输出 (8, 256, H, W)
+    
+    # 确保在这里做拼接
+    x_cat = torch.cat([x_edm, x_CPGM], dim=1)  # 确保维度匹配
+    print("Concatenated shape:", x_cat.shape)
