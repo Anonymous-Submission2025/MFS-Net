@@ -7,3 +7,5 @@ txt.txt
 settings.json
 .gitignore
 FETCH_HEAD
+gen_photo.py
+dataset.py

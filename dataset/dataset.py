@@ -17,7 +17,7 @@ proj_path = os.path.dirname(proj_path)
 class ISIC2018_Datasets(Dataset):
     def __init__(self, mode, transformer):
         super().__init__()
-        cwd=proj_path+'/Datsets'   # 设置数据集的工作目录
+        cwd=proj_path+'/datasets'   # 设置数据集的工作目录
         self.mode = mode  # 设置模式（训练或测试）
         
         # 设定真值（Ground Truth）和图像的路径
@@ -117,8 +117,8 @@ class PH2_Datasets(Dataset):
     def __init__(self,mode,transformer):
         super().__init__()
         self.mode=mode
-        cwd=proj_path+'/Datsets'
-        images_path=os.path.join(cwd,'data','PH2','PH2Dataset','PH2 Dataset images')
+        cwd=proj_path+'/datasets'
+        images_path=os.path.join(cwd,'Medical_image','PH2','PH2Dataset','PH2 Dataset images')
         images_list=sorted(os.listdir(images_path))
         random.shuffle(images_list)
         self.data=[]
@@ -154,10 +154,10 @@ class BUSI_alter_Datasets(Dataset):
     def __init__(self,mode,transformer):
         super().__init__()
         self.mode=mode
-        cwd=proj_path+'/Datsets'
-        data_path_1=os.path.join(cwd,'data','BUSI_alter','Dataset_BUSI','Dataset_BUSI_with_GT','benign')
-        data_path_2=os.path.join(cwd,'data','BUSI_alter','Dataset_BUSI','Dataset_BUSI_with_GT','malignant')
-        data_path_3=os.path.join(cwd,'data','BUSI_alter','Dataset_BUSI','Dataset_BUSI_with_GT','normal')
+        cwd=proj_path+'/datasets'
+        data_path_1=os.path.join(cwd,'Medical_image','BUSI_alter','Dataset_BUSI','Dataset_BUSI_with_GT','benign')
+        data_path_2=os.path.join(cwd,'Medical_image','BUSI_alter','Dataset_BUSI','Dataset_BUSI_with_GT','malignant')
+        data_path_3=os.path.join(cwd,'Medical_image','BUSI_alter','Dataset_BUSI','Dataset_BUSI_with_GT','normal')
 
         benign_list=sorted(os.listdir(data_path_1))
         malignant_list=sorted(os.listdir(data_path_2))
@@ -218,10 +218,10 @@ class BUSI_Datasets(Dataset):
     def __init__(self,mode,transformer):
         super().__init__()
         self.mode=mode
-        cwd=proj_path+'/Datsets'
-        data_path_1=os.path.join(cwd,'data','BUSI','Dataset_BUSI','Dataset_BUSI_with_GT','benign')
-        data_path_2=os.path.join(cwd,'data','BUSI','Dataset_BUSI','Dataset_BUSI_with_GT','malignant')
-        data_path_3=os.path.join(cwd,'data','BUSI','Dataset_BUSI','Dataset_BUSI_with_GT','normal')
+        cwd=proj_path+'/datasets'
+        data_path_1=os.path.join(cwd,'Medical_image','BUSI','Dataset_BUSI','Dataset_BUSI_with_GT','benign')
+        data_path_2=os.path.join(cwd,'Medical_image','BUSI','Dataset_BUSI','Dataset_BUSI_with_GT','malignant')
+        data_path_3=os.path.join(cwd,'Medical_image','BUSI','Dataset_BUSI','Dataset_BUSI_with_GT','normal')
 
         benign_list=sorted(os.listdir(data_path_1))
         malignant_list=sorted(os.listdir(data_path_2))
@@ -281,10 +281,10 @@ class BUSI_Datasets(Dataset):
 class Kvasir_Datasets(Dataset):
     def __init__(self,mode,transformer):
         super().__init__()
-        cwd=proj_path+'/Datsets'
+        cwd=proj_path+'/datasets'
         self.mode=mode
-        gts_path=os.path.join(cwd,'data','Kvasir','kvasir-seg','Kvasir-SEG','masks')
-        images_path=os.path.join(cwd,'data','Kvasir','kvasir-seg','Kvasir-SEG','images')
+        gts_path=os.path.join(cwd,'Medical_image','Kvasir','kvasir-seg','Kvasir-SEG','masks')
+        images_path=os.path.join(cwd,'Medical_image','Kvasir','kvasir-seg','Kvasir-SEG','images')
 
         images_list=sorted(os.listdir(images_path))
         images_list = [item for item in images_list if "jpg" in item]
@@ -563,10 +563,10 @@ class COVID_19_Datasets(Dataset):
 class CVC_ClinkDB_Datasets(Dataset):
     def __init__(self,mode,transformer):
         super().__init__()
-        cwd=proj_path+'/Datsets'
+        cwd=proj_path+'/datasets'
         self.mode=mode
-        gts_path=os.path.join(cwd,'data','CVC_ClinkDB','archive','PNG','Ground Truth')
-        images_path=os.path.join(cwd,'data','CVC_ClinkDB','archive','PNG','Original')
+        gts_path=os.path.join(cwd,'Medical_image','CVC_ClinkDB','archive','PNG','Ground Truth')
+        images_path=os.path.join(cwd,'Medical_image','CVC_ClinkDB','archive','PNG','Original')
         
         images_list=sorted(os.listdir(images_path))
         images_list = [item for item in images_list if "png" in item]
@@ -606,11 +606,11 @@ class CVC_ClinkDB_Datasets(Dataset):
 class Monu_Seg_Datasets(Dataset):
     def __init__(self,mode,transformer):
         super().__init__()
-        cwd=proj_path+'/Datsets'
+        cwd=proj_path+'/datasets'
         self.mode=mode
 
-        gts_path=os.path.join(cwd,'data','Monu_Seg','archive','kmms_test','kmms_test','masks')
-        images_path=os.path.join(cwd,'data','Monu_Seg','archive','kmms_test','kmms_test','images')
+        gts_path=os.path.join(cwd,'Medical_image','Monu_Seg','archive','kmms_test','kmms_test','masks')
+        images_path=os.path.join(cwd,'Medical_image','Monu_Seg','archive','kmms_test','kmms_test','images')
      
         images_list=sorted(os.listdir(images_path))
         images_list = [item for item in images_list if "png" in item]
@@ -623,8 +623,8 @@ class Monu_Seg_Datasets(Dataset):
             mask_path=os.path.join(gts_path,gts_list[i])
             self.data.append([image_path, mask_path])
         
-        gts_path_=os.path.join(cwd,'data','Monu_Seg','archive','kmms_training','kmms_training','masks')
-        images_path_=os.path.join(cwd,'data','Monu_Seg','archive','kmms_training','kmms_training','images')
+        gts_path_=os.path.join(cwd,'Medical_image','Monu_Seg','archive','kmms_training','kmms_training','masks')
+        images_path_=os.path.join(cwd,'Medical_image','Monu_Seg','archive','kmms_training','kmms_training','images')
 
         images_list_=sorted(os.listdir(images_path_))
         images_list_ = [item for item in images_list_ if "tif" in item]
