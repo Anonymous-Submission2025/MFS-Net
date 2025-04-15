@@ -1,7 +1,7 @@
 import torch
 from torch import nn
-from models.DMSAF import dmsaf
-from models.DFFGA_1 import FGA
+from models.MSEE import msee
+from models.MPNS import FGA
 
 
 
@@ -11,15 +11,15 @@ class DFFM(nn.Module):
         super().__init__()
 
         # Deformable Multi-Scale Attention Fusion
-        self.msf = dmsaf(in_channels,kernel_list=kernel_list)
+        self.msf = msee(in_channels,kernel_list=kernel_list)
         
         # Dual Fourier-Feature Guided Attention
         self.mpf = FGA(in_channels)
         
         # 多尺度多频率融合后的特征处理
         self.mlp = nn.Sequential(
-                nn.BatchNorm2d(in_channels),  # 输入通道数是两者的合并
-                nn.Conv2d(in_channels, out_channels, 1),  # 1x1卷积进行特征降维
+                nn.BatchNorm2d(in_channels * 2),  # 输入通道数是两者的合并
+                nn.Conv2d(in_channels * 2, out_channels, 1),  # 1x1卷积进行特征降维
                 
                 nn.GELU(),                                        # 使用GELU激活函数
                 nn.Conv2d(out_channels, out_channels, 1),  # 第二次卷积进行特征处理
@@ -40,30 +40,18 @@ class DFFM(nn.Module):
         self.reduce_channels = nn.Conv2d(in_channels * 2, in_channels, kernel_size=1, stride=1)
 
     def forward(self, x):
- 
-        # x_msf = self.msf(x)
+        # 获取多尺度特征
+        # print("x:",x.shape)
+        x_msf = self.msf(x)
         # print("x_msf:",x_msf.shape)
-        # x_mpf = self.mpf(x)
-        # print("x_mpf:",x_mpf.shape)
-        # x_cat = torch.cat([x_msf, x_mpf], dim=1)    
-        # print("x_cat:",x_cat.shape)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
-        # x = self.mlp(x_cat)  
-        # # 进行上采样或池化
-        # if self.sample is not None:
-        #     x = self.sample(x)
-        
-        # return x
-
-        # # DFFGA消融实验
-        x_msf = self.msf(x)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-        x = self.mlp(x_msf)  # 突出显著特征，弱化非显著特征
-
-        # DMSAF消融实验
-        # x_mpf = self.mpf(x)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-        # x = self.mlp(x_mpf)  # 突出显著特征，弱化非显著特征
-        
+        # 获取多频率特征
+        x_mpf = self.mpf(x)
+        # print("x_mpf:",x_msf.shape)
+        # 合并多尺度和多频率特征
+        x_cat = torch.cat([x_msf, x_mpf], dim=1)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+        x = self.mlp(x_cat)  # 突出显著特征，弱化非显著特征
+        # 进行上采样或池化
         if self.sample is not None:
             x = self.sample(x)
         
         return x
-        

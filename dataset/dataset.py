@@ -7,8 +7,8 @@ import tifffile as tiff
 
 from micro import TEST,TRAIN
 
-abspath = os.path.abspath(__file__) # 获取所执行脚本的绝对路径    
-proj_path = os.path.dirname(abspath) # 获取父级路径            
+abspath = os.path.abspath(__file__)  
+proj_path = os.path.dirname(abspath)        
 proj_path = os.path.dirname(proj_path)                          
 proj_path = os.path.dirname(proj_path)                           
 
@@ -17,99 +17,99 @@ proj_path = os.path.dirname(proj_path)
 class ISIC2018_Datasets(Dataset):
     def __init__(self, mode, transformer):
         super().__init__()
-        cwd=proj_path+'/datasets'   # 设置数据集的工作目录
-        self.mode = mode  # 设置模式（训练或测试）
+        cwd=proj_path+'/datasets'   
+        self.mode = mode  
         
-        # 设定真值（Ground Truth）和图像的路径
+        
         gts_path = os.path.join(cwd, 'data', 'ISIC2018', 'ISIC2018_Task1_Training_GroundTruth', 'ISIC2018_Task1_Training_GroundTruth')
         images_path = os.path.join(cwd, 'data', 'ISIC2018', 'ISIC2018_Task1-2_Training_Input', 'ISIC2018_Task1-2_Training_Input')
 
-        # 获取图像文件和真值文件列表
+        
         images_list = sorted(os.listdir(images_path))
-        images_list = [item for item in images_list if "jpg" in item]  # 只保留jpg格式的图像
+        images_list = [item for item in images_list if "jpg" in item]  
         gts_list = sorted(os.listdir(gts_path))
-        gts_list = [item for item in gts_list if "png" in item]  # 只保留png格式的真值图
+        gts_list = [item for item in gts_list if "png" in item]  
 
         self.data = []
         for i in range(len(images_list)):
-            image_path = images_path + '/' + images_list[i]  # 构建图像路径
-            mask_path = gts_path + '/' + gts_list[i]  # 构建真值路径
-            self.data.append([image_path, mask_path])  # 将图像路径和真值路径存入列表
+            image_path = images_path + '/' + images_list[i]  
+            mask_path = gts_path + '/' + gts_list[i]  
+            self.data.append([image_path, mask_path])  
         
-        self.transformer = transformer  # 图像变换操作
-        random.shuffle(self.data)  # 随机打乱数据顺序
+        self.transformer = transformer  
+        random.shuffle(self.data)  
   
-        # 根据模式切分数据集
-        if mode == TRAIN:
-            self.data = self.data[:2075]  # 训练集前2075个样本
-        elif mode == TEST:
-            self.data = self.data[2075:2594]  # 测试集的样本
         
-        self.data_buf = self.cuda_buffer()  # 将数据预加载到CUDA内存中
-        print(len(self.data))  # 打印数据集大小
+        if mode == TRAIN:
+            self.data = self.data[:2075]  
+        elif mode == TEST:
+            self.data = self.data[2075:2594]  
+        
+        self.data_buf = self.cuda_buffer()  
+        print(len(self.data))  
 
     def getitem_val(self, index):
-        # 获取验证集的图像和真值
-        image_path, gt_path = self.data[index]  # 根据索引获取路径
-        image = Image.open(image_path).convert('RGB')  # 读取图像并转换为RGB模式
-        image = np.array(image)  # 转换为NumPy数组
-        image = np.transpose(image, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-        gt = Image.open(gt_path).convert('L')  # 读取真值图并转换为灰度模式
-        gt = np.array(gt)  # 转换为NumPy数组
-        gt = np.expand_dims(gt, axis=2) / 255  # 扩展维度并归一化
-        gt = np.transpose(gt, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-        image, gt = self.transformer((image, gt))  # 应用变换
+        
+        image_path, gt_path = self.data[index]  
+        image = Image.open(image_path).convert('RGB')  
+        image = np.array(image)  
+        image = np.transpose(image, axes=(2, 0, 1))  
+        gt = Image.open(gt_path).convert('L')  
+        gt = np.array(gt)  
+        gt = np.expand_dims(gt, axis=2) / 255  
+        gt = np.transpose(gt, axes=(2, 0, 1))  
+        image, gt = self.transformer((image, gt))  
         
         if self.mode == TEST:
-            return image, gt, image_path.split('/')[-1]  # 返回图像、真值和图像名称
-        return image, gt  # 返回图像和真值
+            return image, gt, image_path.split('/')[-1]  
+        return image, gt 
 
-    # 将数据集加载到内存中，提高训练速度
+    
     def cuda_buffer(self):
-        data_buf = []  # 初始化数据缓存
-        id = 0  # ID计数器
+        data_buf = []  
+        id = 0 
         for data in self.data:
-            image_path, gt_path = data  # 解构路径
-            image = Image.open(image_path).convert('RGB')  # 读取图像
-            image = np.array(image)  # 转换为NumPy数组
-            image = np.transpose(image, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-            gt = Image.open(gt_path).convert('L')  # 读取真值图
-            gt = np.array(gt)  # 转换为NumPy数组
-            gt = np.expand_dims(gt, axis=2) / 255  # 扩展维度并归一化
-            gt = np.transpose(gt, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-            image, gt = self.transformer((image, gt))  # 应用变换
+            image_path, gt_path = data 
+            image = Image.open(image_path).convert('RGB') 
+            image = np.array(image)  
+            image = np.transpose(image, axes=(2, 0, 1))  
+            gt = Image.open(gt_path).convert('L') 
+            gt = np.array(gt)  
+            gt = np.expand_dims(gt, axis=2) / 255  
+            gt = np.transpose(gt, axes=(2, 0, 1))  
+            image, gt = self.transformer((image, gt)) 
             
-            # 将数据转移到CUDA设备上
+            
             image = image.cpu()
             gt = gt.cpu()    
             
             if self.mode == TEST:
-                data_buf.append([image, gt, image_path.split('/')[-1]])  # 缓存测试数据
+                data_buf.append([image, gt, image_path.split('/')[-1]])  
             else:
-                data_buf.append([image, gt])  # 缓存训练数据
+                data_buf.append([image, gt])  
             
-            # 每处理20个样本打印一次进度
+           
             if id % 20 == 0:
                 print(id)
             id += 1
         
-        return data_buf  # 返回数据缓存
+        return data_buf  
 
     def __getitem__(self, index):
-        # 根据索引返回样本
+        
         if self.mode != TEST:
-            image, gt = self.data_buf[index]  # 从缓存中获取训练数据
-            image = image.cpu()  # 转回CPU
-            gt = gt.cpu()  # 转回CPU
-            return image, gt  # 返回图像和真值
+            image, gt = self.data_buf[index]  
+            image = image.cpu()  
+            gt = gt.cpu() 
+            return image, gt  
         else:
-            image, gt, image_name = self.data_buf[index]  # 从缓存中获取测试数据
-            image = image.cpu()  # 转回CPU
-            gt = gt.cpu()  # 转回CPU
-            return image, gt, image_name  # 返回图像、真值和图像名称
+            image, gt, image_name = self.data_buf[index] 
+            image = image.cpu()  
+            gt = gt.cpu()  
+            return image, gt, image_name 
 
     def __len__(self):
-        # 返回数据集大小
+       
         return len(self.data)
 
 
@@ -303,262 +303,172 @@ class Kvasir_Datasets(Dataset):
             self.data=self.data[880:1000]
 
             
-        self.data_buf = self.cuda_buffer()  # 将数据预加载到CUDA内存中
-        print(len(self.data))  # 打印数据集大小
+        self.data_buf = self.cuda_buffer()  
+        print(len(self.data)) 
 
     def getitem_val(self, index):
-        # 获取验证集的图像和真值
-        image_path, gt_path = self.data[index]  # 根据索引获取路径
-        image = Image.open(image_path).convert('RGB')  # 读取图像并转换为RGB模式
-        image = np.array(image)  # 转换为NumPy数组
-        image = np.transpose(image, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-        gt = Image.open(gt_path).convert('L')  # 读取真值图并转换为灰度模式
-        gt = np.array(gt)  # 转换为NumPy数组
-        gt = np.expand_dims(gt, axis=2) / 255  # 扩展维度并归一化
-        gt = np.transpose(gt, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-        image, gt = self.transformer((image, gt))  # 应用变换
         
+        image_path, gt_path = self.data[index]  
+        image = Image.open(image_path).convert('RGB')  
+        image = np.array(image)  
+        image = np.transpose(image, axes=(2, 0, 1))  
+        gt = Image.open(gt_path).convert('L')  
+        gt = np.array(gt)  
+        gt = np.expand_dims(gt, axis=2) / 255  
+        gt = np.transpose(gt, axes=(2, 0, 1))  
+        image, gt = self.transformer((image, gt))  
         if self.mode == TEST:
-            return image, gt, image_path.split('/')[-1]  # 返回图像、真值和图像名称
-        return image, gt  # 返回图像和真值
+            return image, gt, image_path.split('/')[-1]  
+        return image, gt  
 
-    # 将数据集加载到内存中，提高训练速度
+    
     def cuda_buffer(self):
-        data_buf = []  # 初始化数据缓存
-        id = 0  # ID计数器
+        data_buf = []  
+        id = 0  
         for data in self.data:
-            image_path, gt_path = data  # 解构路径
-            image = Image.open(image_path).convert('RGB')  # 读取图像
-            image = np.array(image)  # 转换为NumPy数组
-            image = np.transpose(image, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-            gt = Image.open(gt_path).convert('L')  # 读取真值图
-            gt = np.array(gt)  # 转换为NumPy数组
-            gt = np.expand_dims(gt, axis=2) / 255  # 扩展维度并归一化
-            gt = np.transpose(gt, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-            image, gt = self.transformer((image, gt))  # 应用变换
+            image_path, gt_path = data  
+            image = Image.open(image_path).convert('RGB') 
+            image = np.array(image) 
+            image = np.transpose(image, axes=(2, 0, 1))  
+            gt = Image.open(gt_path).convert('L')  
+            gt = np.array(gt)  
+            gt = np.expand_dims(gt, axis=2) / 255  
+            gt = np.transpose(gt, axes=(2, 0, 1))  
+            image, gt = self.transformer((image, gt)) 
             
-            # 将数据转移到CUDA设备上
-            # image = image.cpu()
-            # gt = gt.cpu()    
+               
             image = image.to('cuda:3')
             gt = gt.to('cuda:3')   
             
             if self.mode == TEST:
-                data_buf.append([image, gt, image_path.split('/')[-1]])  # 缓存测试数据
+                data_buf.append([image, gt, image_path.split('/')[-1]]) 
             else:
-                data_buf.append([image, gt])  # 缓存训练数据
+                data_buf.append([image, gt])  
             
-            # 每处理20个样本打印一次进度
+           
             if id % 20 == 0:
                 print(id)
             id += 1
         
-        return data_buf  # 返回数据缓存
+        return data_buf  
 
     def __getitem__(self, index):
-        # 根据索引返回样本
+        
         if self.mode != TEST:
-            image, gt = self.data_buf[index]  # 从缓存中获取训练数据
-            image = image.cpu()  # 转回CPU
-            gt = gt.cpu()  # 转回CPU
-            return image, gt  # 返回图像和真值
+            image, gt = self.data_buf[index]  
+            image = image.cpu()  
+            gt = gt.cpu()  
+            return image, gt  
         else:
-            image, gt, image_name = self.data_buf[index]  # 从缓存中获取测试数据
-            image = image.cpu()  # 转回CPU
-            gt = gt.cpu()  # 转回CPU
-            return image, gt, image_name  # 返回图像、真值和图像名称
+            image, gt, image_name = self.data_buf[index] 
+            image = image.cpu()  
+            gt = gt.cpu()  
+            return image, gt, image_name  
 
     def __len__(self):
-        # 返回数据集大小
+        
         return len(self.data)
 
-# class Kvasir_Datasets(Dataset):
-#     def __init__(self,mode,transformer):
-#         super().__init__()
-#         cwd=proj_path+'/Datsets'
-#         self.mode=mode
-#         gts_path=os.path.join(cwd,'data','Kvasir','kvasir-seg','Kvasir-SEG','masks')
-#         images_path=os.path.join(cwd,'data','Kvasir','kvasir-seg','Kvasir-SEG','images')
-
-#         images_list=sorted(os.listdir(images_path))
-#         images_list = [item for item in images_list if "jpg" in item]
-#         gts_list=sorted(os.listdir(gts_path))
-#         gts_list = [item for item in gts_list if "jpg" in item]
-#         self.data=[]
-#         for i in range(len(images_list)):
-#             image_path=images_path+'/'+images_list[i]
-#             mask_path=gts_path+'/'+gts_list[i]
-#             self.data.append([image_path, mask_path])
-#         self.transformer=transformer
-#         random.shuffle(self.data)
-#         if mode==TRAIN:
-#             self.data=self.data[:880]
-#         elif mode==TEST:
-#             self.data=self.data[880:1000]
-
-#         print(len(self.data))
-
-
-#     def __getitem__(self, index):
-#         image_path, gt_path=self.data[index]
-#         image = Image.open(image_path).convert('RGB')
-#         image=np.array(image)
-#         image = np.transpose(image, axes=(2, 0, 1))
-#         gt = Image.open(gt_path).convert('L')
-#         gt = np.array(gt)
-#         gt=np.expand_dims(gt, axis=2) / 255
-#         gt = np.transpose(gt, axes=(2, 0, 1))
-#         image, gt = self.transformer((image, gt))
-#         if self.mode==TEST:
-#             return image,gt,image_path.split('/')[-1]
-#         return image,gt
-    
-
-#     def __len__(self):
-#         return len(self.data)
+# 
 
 
 class COVID_19_Datasets(Dataset):
     def __init__(self, mode, transformer):
         super().__init__()
-        cwd=proj_path+'/Datsets'  # 设置数据集的工作目录
-        self.mode = mode  # 设置模式（训练或测试）
+        cwd=proj_path+'/Datsets'  
+        self.mode = mode  
         
-        # 设定真值（Ground Truth）和图像的路径
+        
         gts_path=os.path.join(cwd,'data','COVID_19','COVID-19_Lung_Infection_train','COVID-19_Lung_Infection_train','masks')
         images_path=os.path.join(cwd,'data','COVID_19','COVID-19_Lung_Infection_train','COVID-19_Lung_Infection_train','images')
 
-        # 获取图像文件和真值文件列表
+        
         images_list = sorted(os.listdir(images_path))
-        images_list = [item for item in images_list if "jpg" in item]  # 只保留jpg格式的图像
+        images_list = [item for item in images_list if "jpg" in item]  
         gts_list = sorted(os.listdir(gts_path))
-        gts_list = [item for item in gts_list if "png" in item]  # 只保留png格式的真值图
+        gts_list = [item for item in gts_list if "png" in item]  
 
         self.data = []
         for i in range(len(images_list)):
-            image_path = images_path + '/' + images_list[i]  # 构建图像路径
-            mask_path = gts_path + '/' + gts_list[i]  # 构建真值路径
-            self.data.append([image_path, mask_path])  # 将图像路径和真值路径存入列表
+            image_path = images_path + '/' + images_list[i] 
+            mask_path = gts_path + '/' + gts_list[i]  
+            self.data.append([image_path, mask_path])  
         
-        self.transformer = transformer  # 图像变换操作
-        random.shuffle(self.data)  # 随机打乱数据顺序
+        self.transformer = transformer  
+        random.shuffle(self.data)  
   
-        # 根据模式切分数据集
-        if mode == TRAIN:
-            self.data = self.data[:2075]  # 训练集前2075个样本
-        elif mode == TEST:
-            self.data = self.data[2075:2594]  # 测试集的样本
         
-        self.data_buf = self.cuda_buffer()  # 将数据预加载到CUDA内存中
-        print(len(self.data))  # 打印数据集大小
-
+        if mode == TRAIN:
+            self.data = self.data[:2075]  
+        elif mode == TEST:
+            self.data = self.data[2075:2594]  
+        
+        self.data_buf = self.cuda_buffer()  
+        print(len(self.data))  
     def getitem_val(self, index):
-        # 获取验证集的图像和真值
-        image_path, gt_path = self.data[index]  # 根据索引获取路径
-        image = Image.open(image_path).convert('RGB')  # 读取图像并转换为RGB模式
-        image = np.array(image)  # 转换为NumPy数组
-        image = np.transpose(image, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-        gt = Image.open(gt_path).convert('L')  # 读取真值图并转换为灰度模式
-        gt = np.array(gt)  # 转换为NumPy数组
-        gt = np.expand_dims(gt, axis=2) / 255  # 扩展维度并归一化
-        gt = np.transpose(gt, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-        image, gt = self.transformer((image, gt))  # 应用变换
+        
+        image_path, gt_path = self.data[index] 
+        image = Image.open(image_path).convert('RGB')  
+        image = np.array(image)  
+        image = np.transpose(image, axes=(2, 0, 1)) 
+        gt = Image.open(gt_path).convert('L')  
+        gt = np.array(gt)  
+        gt = np.expand_dims(gt, axis=2) / 255  
+        gt = np.transpose(gt, axes=(2, 0, 1))  
+        image, gt = self.transformer((image, gt))  
         
         if self.mode == TEST:
-            return image, gt, image_path.split('/')[-1]  # 返回图像、真值和图像名称
-        return image, gt  # 返回图像和真值
+            return image, gt, image_path.split('/')[-1]  
+        return image, gt  
 
-    # 将数据集加载到内存中，提高训练速度
+    
     def cuda_buffer(self):
-        data_buf = []  # 初始化数据缓存
-        id = 0  # ID计数器
+        data_buf = []  
+        id = 0  
         for data in self.data:
-            image_path, gt_path = data  # 解构路径
-            image = Image.open(image_path).convert('RGB')  # 读取图像
-            image = np.array(image)  # 转换为NumPy数组
-            image = np.transpose(image, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-            gt = Image.open(gt_path).convert('L')  # 读取真值图
-            gt = np.array(gt)  # 转换为NumPy数组
-            gt = np.expand_dims(gt, axis=2) / 255  # 扩展维度并归一化
-            gt = np.transpose(gt, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-            image, gt = self.transformer((image, gt))  # 应用变换
+            image_path, gt_path = data  
+            image = Image.open(image_path).convert('RGB')  
+            image = np.array(image)  
+            image = np.transpose(image, axes=(2, 0, 1))  
+            gt = Image.open(gt_path).convert('L')  
+            gt = np.array(gt)  
+            gt = np.expand_dims(gt, axis=2) / 255  
+            gt = np.transpose(gt, axes=(2, 0, 1))  
+            image, gt = self.transformer((image, gt))  
             
-            # 将数据转移到CUDA设备上
+            
             image = image.to('cuda:0')
             gt = gt.to('cuda:0')
             
             if self.mode == TEST:
-                data_buf.append([image, gt, image_path.split('/')[-1]])  # 缓存测试数据
+                data_buf.append([image, gt, image_path.split('/')[-1]])  
             else:
-                data_buf.append([image, gt])  # 缓存训练数据
+                data_buf.append([image, gt])  
             
-            # 每处理20个样本打印一次进度
+            
             if id % 20 == 0:
                 print(id)
             id += 1
         
-        return data_buf  # 返回数据缓存
+        return data_buf 
 
     def __getitem__(self, index):
-        # 根据索引返回样本
+        
         if self.mode != TEST:
-            image, gt = self.data_buf[index]  # 从缓存中获取训练数据
-            image = image.cpu()  # 转回CPU
-            gt = gt.cpu()  # 转回CPU
-            return image, gt  # 返回图像和真值
+            image, gt = self.data_buf[index]  
+            image = image.cpu()  
+            gt = gt.cpu()  
+            return image, gt  
         else:
-            image, gt, image_name = self.data_buf[index]  # 从缓存中获取测试数据
-            image = image.cpu()  # 转回CPU
-            gt = gt.cpu()  # 转回CPU
-            return image, gt, image_name  # 返回图像、真值和图像名称
+            image, gt, image_name = self.data_buf[index]  
+            image = image.cpu()  
+            gt = gt.cpu()  
+            return image, gt, image_name  
 
     def __len__(self):
-        # 返回数据集大小
         return len(self.data)
 
-# class COVID_19_Datasets(Dataset):
-#     def __init__(self,mode,transformer):
-#         super().__init__()
-#         cwd=proj_path+'/Datsets'
-#         self.mode=mode
-#         gts_path=os.path.join(cwd,'data','COVID_19','COVID-19_Lung_Infection_train','COVID-19_Lung_Infection_train','masks')
-#         images_path=os.path.join(cwd,'data','COVID_19','COVID-19_Lung_Infection_train','COVID-19_Lung_Infection_train','images')
-#         images_list=sorted(os.listdir(images_path))
-#         images_list = [item for item in images_list if "jpg" in item]
-#         gts_list=sorted(os.listdir(gts_path))
-#         gts_list = [item for item in gts_list if "png" in item]
 
-#         self.data=[]
-#         for i in range(len(images_list)):
-#             image_path=os.path.join(images_path,images_list[i])
-#             mask_path=os.path.join(gts_path,gts_list[i])
-#             self.data.append([image_path, mask_path])
-#         self.transformer=transformer
-#         random.shuffle(self.data)
-
-#         if mode==TRAIN:
-#             self.data=self.data[:716]
-#         elif mode==TEST:
-#             self.data=self.data[716:894]
-#         print(len(self.data))
-
-#     def __getitem__(self, index):
-#         image_path, gt_path=self.data[index]
-#         image = Image.open(image_path).convert('RGB')
-#         image=np.array(image)
-#         image = np.transpose(image, axes=(2, 0, 1))
-#         gt = Image.open(gt_path).convert('L')
-#         gt = np.array(gt)
-#         gt=np.expand_dims(gt, axis=2) / 255
-#         gt = np.transpose(gt, axes=(2, 0, 1))
-#         image, gt = self.transformer((image, gt))
-#         if self.mode==TEST:
-#             return image,gt,image_path.split('/')[-1]
-#         return image,gt
-    
-
-#     def __len__(self):
-#         return len(self.data)
 
 class CVC_ClinkDB_Datasets(Dataset):
     def __init__(self,mode,transformer):
@@ -648,69 +558,7 @@ class Monu_Seg_Datasets(Dataset):
         print(len(self.data))
         
         
-    # def getitem_val(self, index):
-    #     # 获取验证集的图像和真值
-    #     image_path, gt_path = self.data[index]  # 根据索引获取路径
-    #     image = Image.open(image_path).convert('RGB')  # 读取图像并转换为RGB模式
-    #     image = np.array(image)  # 转换为NumPy数组
-    #     image = np.transpose(image, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-    #     gt = Image.open(gt_path).convert('L')  # 读取真值图并转换为灰度模式
-    #     gt = np.array(gt)  # 转换为NumPy数组
-    #     gt = np.expand_dims(gt, axis=2) / 255  # 扩展维度并归一化
-    #     gt = np.transpose(gt, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-    #     image, gt = self.transformer((image, gt))  # 应用变换
-        
-    #     if self.mode == TEST:
-    #         return image, gt, image_path.split('/')[-1]  # 返回图像、真值和图像名称
-    #     return image, gt  # 返回图像和真值
 
-    # # 将数据集加载到内存中，提高训练速度
-    # def cuda_buffer(self):
-    #     data_buf = []  # 初始化数据缓存
-    #     id = 0  # ID计数器
-    #     for data in self.data:
-    #         image_path, gt_path = data  # 解构路径
-    #         image = Image.open(image_path).convert('RGB')  # 读取图像
-    #         image = np.array(image)  # 转换为NumPy数组
-    #         image = np.transpose(image, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-    #         gt = Image.open(gt_path).convert('L')  # 读取真值图
-    #         gt = np.array(gt)  # 转换为NumPy数组
-    #         gt = np.expand_dims(gt, axis=2) / 255  # 扩展维度并归一化
-    #         gt = np.transpose(gt, axes=(2, 0, 1))  # 调整维度为(C, H, W)
-    #         image, gt = self.transformer((image, gt))  # 应用变换
-            
-    #         # 将数据转移到CUDA设备上
-    #         image = image.cpu()
-    #         gt = gt.cpu()
-            
-    #         if self.mode == TEST:
-    #             data_buf.append([image, gt, image_path.split('/')[-1]])  # 缓存测试数据
-    #         else:
-    #             data_buf.append([image, gt])  # 缓存训练数据
-            
-    #         # 每处理20个样本打印一次进度
-    #         if id % 20 == 0:
-    #             print(id)
-    #         id += 1
-        
-    #     return data_buf  # 返回数据缓存
-
-    # def __getitem__(self, index):
-    #     # 根据索引返回样本
-    #     if self.mode != TEST:
-    #         image, gt = self.data_buf[index]  # 从缓存中获取训练数据
-    #         image = image.cpu()  # 转回CPU
-    #         gt = gt.cpu()  # 转回CPU
-    #         return image, gt  # 返回图像和真值
-    #     else:
-    #         image, gt, image_name = self.data_buf[index]  # 从缓存中获取测试数据
-    #         image = image.cpu()  # 转回CPU
-    #         gt = gt.cpu()  # 转回CPU
-    #         return image, gt, image_name  # 返回图像、真值和图像名称
-
-    # def __len__(self):
-    #     # 返回数据集大小
-    #     return len(self.data)
 
 
     def __getitem__(self, index):

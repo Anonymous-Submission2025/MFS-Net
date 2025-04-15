@@ -46,7 +46,7 @@ class ChannelSpatialAttention(nn.Module):
         x = x * spatial_weights
         return x
 
-class MSFA_Block(nn.Module):
+class DAB(nn.Module):
     """多尺度特征提取块，包含可变形卷积和注意力机制，可选采样操作。"""
     def __init__(self, in_channels, kernel, sample1=None, sample2=None):
         super().__init__()
@@ -71,23 +71,23 @@ class MSFA_Block(nn.Module):
             x = self.sample2(x)
         return x
 
-class dmsaf(nn.Module):
+class msee(nn.Module):
     """多尺度特征融合模块，将不同尺度的特征进行融合。"""
     def __init__(self, in_channels, kernel_list=[3, 9]):
         super().__init__()
         # 构建多个 MSFA_Block，不同块使用不同的卷积核尺寸和采样策略
-        self.msfa1 = MSFA_Block(in_channels, kernel_list[0])
-        self.msfa2 = MSFA_Block(in_channels, kernel_list[1])
-        self.msfa3 = MSFA_Block(in_channels, kernel_list[0],
+        self.msfa1 = DAB(in_channels, kernel_list[0])
+        self.msfa2 = DAB(in_channels, kernel_list[1])
+        self.msfa3 = DAB(in_channels, kernel_list[0],
                                  nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
                                  nn.MaxPool2d(kernel_size=2, stride=2))
-        self.msfa4 = MSFA_Block(in_channels, kernel_list[1],
+        self.msfa4 = DAB(in_channels, kernel_list[1],
                                  nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
                                  nn.MaxPool2d(kernel_size=2, stride=2))
-        self.msfa5 = MSFA_Block(in_channels, kernel_list[0],
+        self.msfa5 = DAB(in_channels, kernel_list[0],
                                  nn.MaxPool2d(kernel_size=2, stride=2),
                                  nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True))
-        self.msfa6 = MSFA_Block(in_channels, kernel_list[1],
+        self.msfa6 = DAB(in_channels, kernel_list[1],
                                  nn.MaxPool2d(kernel_size=2, stride=2),
                                  nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True))
         
@@ -116,6 +116,6 @@ class dmsaf(nn.Module):
 if __name__ == "__main__":
     # 创建输入张量 (batch_size, channels, height, width)
     input_tensor = torch.randn(1, 10, 64, 64)  # 1个样本，10个通道，64x64的特征图
-    model = dmsaf(in_channels=10)  # 初始化 MSFA 模型，输入通道数为10
+    model = msee(in_channels=10)  # 初始化 MSFA 模型，输入通道数为10
     output = model(input_tensor)  # 前向传播
     print("Output shape:", output.shape)  # 打印输出形状

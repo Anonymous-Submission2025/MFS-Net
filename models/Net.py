@@ -3,7 +3,7 @@ from models.DFFM import DFFM
 
 
 
-class RoMER_UNet(nn.Module):
+class MFS_net(nn.Module):
     def __init__(self,input_channels=3, out_channels:list=None,kernel_list=None):
         super().__init__()
         #encoding
