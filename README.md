@@ -14,7 +14,7 @@ Through extensive experiments on four medical image datasets, the most advanced 
 ## 🚀 Introduction
 
 <div align="center">
-    <img width="400" alt="image" src="asserts/challen_.jpg?raw=true">
+    <img width="800" alt="image" src="asserts/challen_.jpg?raw=true">
 </div>
 
 Major challenges in medical image segmentation.
@@ -22,7 +22,7 @@ Major challenges in medical image segmentation.
 ## 📻 Overview
 
 <div align="center">
-<img width="800" alt="image" src="asserts/MFS-Net.jpg?raw=true">
+<img width="800" alt="image" src="asserts/MFS-net.jpg?raw=true">
 </div>
 
 Overall framework of the proposed MFS-Net. (a) DFFM is Dual Branch Feature Fusion Module. (b) MFNS is Multi-Frequency Noise Suppression. (c) MSEE is Multi-Scale Edge Enhancement. (d) FEB is Feature Enhancement Block. (e) Spectral is A module constructed using fast Fourier transform(FFT).
