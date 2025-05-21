@@ -95,7 +95,7 @@ concrete information see test.py, please
 
 
 <div align="center">
-    Qualitative comparison of other methods and MFS-Net. (a) Input images. (b) Ground truth. (c) MFS-Net(Ours). (d) U-Net. (e) UCTransNet. (f) MLWNet. (g) UltraLight-VMUNet. (h) MFMSA. (i) VPTTA. (j) EMCAD. (k) MambaU-Lite. (l) VM-UNet. (m) H-vmunet. Green lines denote the boundaries of the ground truth.
+   Visualization comparing MFS-Net with other methods. (a) Input images. (b) Ground truth. (c) MFS-Net(Ours). (d) U-Net. (e) UCTransNet. (f) MLWNet. (g) UltraLight-VMUNet. (h) MFMSA. (i) VPTTA. (j) EMCAD. (k) MambaU-Lite. (l) VM-UNet. (m) H-vmunet. Green lines denote the boundaries of the ground truth.
 </div>
 
 ##  License
