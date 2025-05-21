@@ -1,5 +1,5 @@
 <div align="center">
-<h1> MFS-Net: Medical Image Segmentation Network via Frequency Domain Dual-Size Patch Partitioning and Multi-Scale Deformable Learning </h1>
+<h1> MFS-Net: Medical Image Segmentation via Frequency Domain Dual-Size Patch Partitioning and Multi-Scale Deformable Learning </h1>
 </div>
 
 ##  News
