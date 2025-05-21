@@ -26,8 +26,7 @@ Major challenges in medical image segmentation.
 <img width="800" alt="image" src="asserts/MFS-Net.png?raw=true">
 </div>
 
-Overall framework of the proposed MFS-Net. (a) DFFM is Dual Branch Feature Fusion Module. (b) MFNS is Multi-Frequency Noise Suppression. (c) MSEE is Multi-Scale Edge Enhancement. (d) FEB is Feature Enhancement Block. (e) Spectral is A module constructed using fast Fourier transform(FFT).
-
+The overall framework of the proposed MFS-Net. Our network architecture adopts a dual-branch structure and consists of four levels. Each level contains a multi-frequency noise suppression (MFNS) module and a multi-scale edge enhancement (MSEE) module. MFNS contains our proposed dual patch Fourier enhancement (DPFE). Each MSEE contains a multi-scale deformable convolution (MSDC) module and a spatial channel attention mechanism.
 
 ##  TODO
 
