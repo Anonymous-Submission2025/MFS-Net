@@ -8,7 +8,7 @@
 
 ##  Abstract
 
-The co-occurrence phenomenon in medical images makes it difficult for the model to distinguish target features from background interference. In addition, the problem of blurred and irregular edge contours is particularly common in medical image segmentation, which usually leads to unclear edges in the segmentation results. To address these problems, this paper proposes a novel medical image segmentation framework MFS-Net. The network adopts a dual-branch feature fusion module (DFFM) as its backbone. 
+In medical images, the co-occurrence phenomenon often makes it difficult for the model to distinguish target features from background interference. In addition, the problem of blurred and irregular edge contours is also particularly common in medical image segmentation, which usually leads to unclear edges in the segmentation results. To address these problems, this paper proposes a novel medical image segmentation framework MFS-Net. The network adopts a dual-branch feature fusion module (DFFM) as its backbone. 
 In the DPFE block, we propose a novel patch partitioning strategy, which uses the design of dual-size patches to efficiently separate and capture high-frequency textures and low-frequency overall structures in the frequency domain. And by introducing a learnable quantization matrix W, the key frequency components are adaptively screened and amplified to suppress noise interference. In addition, we use multi-scale deformable learning to dynamically adjust the sampling grid to accurately capture multi-scale edge features that are robust to boundary blur. 
 Through extensive experiments on four medical image datasets, it is demonstrated that our method achieves state-of-the-art performance and universality.
 
