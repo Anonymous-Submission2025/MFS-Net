@@ -7,16 +7,16 @@ class MFS_net(nn.Module):
     def __init__(self,input_channels=3, out_channels:list=None,kernel_list=None):
         super().__init__()
         #encoding
-        self.en1=DFFM(out_channels[0],out_channels[1],sample=True,up=False,kernel_list=kernel_list)
-        self.en2=DFFM(out_channels[1],out_channels[2],sample=True,up=False,kernel_list=kernel_list)
-        self.en3=DFFM(out_channels[2],out_channels[3],sample=True,up=False,kernel_list=kernel_list)
-        self.en4=DFFM(out_channels[3],out_channels[4],sample=True,up=False,kernel_list=kernel_list)
+        self.en1=DFFM(out_channels[0],out_channels[1],sample=True,up=False,kernel_list=kernel_list,patchsizes=[32,128])
+        self.en2=DFFM(out_channels[1],out_channels[2],sample=True,up=False,kernel_list=kernel_list,patchsizes=[16,64])
+        self.en3=DFFM(out_channels[2],out_channels[3],sample=True,up=False,kernel_list=kernel_list,patchsizes=[8,32])
+        self.en4=DFFM(out_channels[3],out_channels[4],sample=True,up=False,kernel_list=kernel_list,patchsizes=[4,16])
 
         #decoding
-        self.de1=DFFM(out_channels[1],out_channels[0],sample=True,up=True,kernel_list=kernel_list)
-        self.de2=DFFM(out_channels[2],out_channels[1],sample=True,up=True,kernel_list=kernel_list)
-        self.de3=DFFM(out_channels[3],out_channels[2],sample=True,up=True,kernel_list=kernel_list)
-        self.de4=DFFM(out_channels[4],out_channels[3],sample=True,up=True,kernel_list=kernel_list)
+        self.de1=DFFM(out_channels[1],out_channels[0],sample=True,up=True,kernel_list=kernel_list,patchsizes=[16,64])
+        self.de2=DFFM(out_channels[2],out_channels[1],sample=True,up=True,kernel_list=kernel_list,patchsizes=[8,32])
+        self.de3=DFFM(out_channels[3],out_channels[2],sample=True,up=True,kernel_list=kernel_list,patchsizes=[4,16])
+        self.de4=DFFM(out_channels[4],out_channels[3],sample=True,up=True,kernel_list=kernel_list,patchsizes=[2,8])
 
         #patch
         self.patch_conv=nn.Sequential(
@@ -43,6 +43,25 @@ class MFS_net(nn.Module):
         d2=self.de2(d3+e2)
         d1=self.de1(d2+e1)
         
+        # e1=self.en1(x)
+        # print('e1',e1.shape)
+        # e2=self.en2(e1)
+        # print('e2',e2.shape)
+        # e3=self.en3(e2)
+        # print('e3',e3.shape)
+        # e4=self.en4(e3)
+        # print('e4',e4.shape)
+
+        # #decoding
+        # d4=self.de4(e4)
+        # print('d4',d4.shape)
+        # d3=self.de3(d4+e3)
+        # print('d3',d3.shape)
+        # d2=self.de2(d3+e2)
+        # print('d2',d2.shape)
+        # d1=self.de1(d2+e1)
+        # print('d1',d1.shape)
+
         #prediction
         x_pre=self.ph([d4,d3,d2,d1])
         return x_pre
