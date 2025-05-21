@@ -19,7 +19,7 @@ class ChannelSpatialAttention(nn.Module):
         super(ChannelSpatialAttention, self).__init__()
         
         hidden_channels = max(1, in_channels // 16)
-        # 通道注意力模块
+        
         self.channel_att = nn.Sequential(
             nn.AdaptiveAvgPool2d(1),
             nn.Conv2d(in_channels, hidden_channels, kernel_size=1),
@@ -34,10 +34,10 @@ class ChannelSpatialAttention(nn.Module):
         )
 
     def forward(self, x):
-        # 计算通道注意力权重，并与输入相乘
+        
         channel_weights = self.channel_att(x)
         x = x * channel_weights
-        # 计算空间注意力权重，并与输入相乘
+       
         spatial_weights = self.spatial_att(x)
         x = x * spatial_weights
         return x
@@ -54,14 +54,14 @@ class DAB(nn.Module):
             nn.BatchNorm2d(in_channels)
         )
        
-        self.attention = ChannelSpatialAttention(in_channels)
+        
 
     def forward(self, x):
         
         if self.sample1 is not None:
             x = self.sample1(x)
         x = self.extract(x)
-        x = self.attention(x)
+        
        
         if self.sample2 is not None:
             x = self.sample2(x)
@@ -86,11 +86,12 @@ class msee(nn.Module):
                                  nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True))
         
         self.extract = nn.Sequential(
-            nn.Conv2d(6 * in_channels, in_channels, 3, padding=1, groups=in_channels),
+            nn.Conv2d(6 * in_channels, in_channels, 3, padding=1, groups=in_channels),     
             nn.BatchNorm2d(in_channels),
             nn.GELU(),
-            nn.Conv2d(in_channels, in_channels, 1),
+            nn.Conv2d(in_channels, in_channels, 1),                                        
         )
+        self.attention = ChannelSpatialAttention(6 * in_channels)
 
     def forward(self, x):
       
@@ -102,7 +103,8 @@ class msee(nn.Module):
         x6 = self.msfa6(x)
       
         out = torch.cat([x1, x2, x3, x4, x5, x6], dim=1)
-        out = self.extract(out)
+        x = self.attention(out)
+        out = self.extract(x)
         return out
 
 
