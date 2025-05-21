@@ -1,20 +1,21 @@
 <div align="center">
-<h1> MFS-Net: A General Medical Image Segmentation Framework via Multi-Frequency and Multi-Scale Feature Fusion </h1>
+<h1> MFS-Net: Medical Image Segmentation Network via Frequency Domain Dual-Size Patch Partitioning and Multi-Scale Deformable Learning </h1>
 </div>
 
 ##  News
 
-- [2025.4.21] Training and inference code released
+- [2025.5.21] Training and inference code released
 
 ##  Abstract
 
-Medical image segmentation (MIS) is crucial in improving clinical diagnostic accuracy and reducing the risk of misdiagnosis. However, it still faces two major challenges. On the one hand, co-occurrence phenomena often occur in medical image processing, which can cause noise interference and make the model unable to distinguish between target features and co-occurrence interference information, resulting in model segmentation errors. On the other hand, fuzzy boundaries and low contrast are commonly present in medical images, and irregular and blurry edge information can lead to unclear edge segmentation. To address these challenges, we propose a universal framework called Multi-Frequency and Multi-Scale Medical Image Segmentation (MFS-Net), which is based on the U-Net architecture and innovatively proposed a Dual Branch Feature Fusion Module (DFFM) to extract and fuse multi frequency and multi-scale features separately. Firstly, we designed a Multi Frequency Noise Suppression (MPNS) module that combines attention mechanism with Fast Fourier Transform (FFT), utilizing FFT to optimize the fusion of details and global information in the frequency domain, achieving the optimal fusion of noise suppression and effective features. Secondly, a multi-scale edge enhancement (MSEE) module for fuzzy boundary problems is proposed, which dynamically adjusts the receptive field through deformable convolution and channel space attention mechanism to accurately capture multi-scale edge features. 
-Through extensive experiments on four medical image datasets, the most advanced performance of our method is proved, and its progressiveness and universal applicability to various medical image segmentation scenes are proved.
+The co-occurrence phenomenon in medical images makes it difficult for the model to distinguish target features from background interference. In addition, the problem of blurred and irregular edge contours is particularly common in medical image segmentation, which usually leads to unclear edges in the segmentation results. To address these problems, this paper proposes a novel medical image segmentation framework MFS-Net. The network adopts a dual-branch feature fusion module (DFFM) as its backbone. 
+In the DPFE block, we propose a novel patch partitioning strategy, which uses the design of dual-size patches to efficiently separate and capture high-frequency textures and low-frequency overall structures in the frequency domain. And by introducing a learnable quantization matrix W, the key frequency components are adaptively screened and amplified to suppress noise interference. In addition, we use multi-scale deformable learning to dynamically adjust the sampling grid to accurately capture multi-scale edge features that are robust to boundary blur. 
+Through extensive experiments on four medical image datasets, it is demonstrated that our method achieves state-of-the-art performance and universality.
 
 ##  Introduction
 
 <div align="center">
-    <img width="800" alt="image" src="asserts/challen_.jpg?raw=true">
+    <img width="800" alt="image" src="asserts/challen_.png?raw=true">
 </div>
 
 Major challenges in medical image segmentation.
@@ -22,7 +23,7 @@ Major challenges in medical image segmentation.
 ##  Overview
 
 <div align="center">
-<img width="800" alt="image" src="asserts/MFS-net.jpg?raw=true">
+<img width="800" alt="image" src="asserts/MFS-net.png?raw=true">
 </div>
 
 Overall framework of the proposed MFS-Net. (a) DFFM is Dual Branch Feature Fusion Module. (b) MFNS is Multi-Frequency Noise Suppression. (c) MSEE is Multi-Scale Edge Enhancement. (d) FEB is Feature Enhancement Block. (e) Spectral is A module constructed using fast Fourier transform(FFT).
