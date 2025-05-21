@@ -1,122 +1,71 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.nn.init as init
+from einops import rearrange
+import models.hotfeat as hotfeat
 
-class ChannelAttention(nn.Module):
-    
-    def __init__(self, in_channels, reduction=16):
-        super(ChannelAttention, self).__init__()
-        self.fc1 = nn.Linear(in_channels, in_channels // reduction, bias=False)
-        self.fc2 = nn.Linear(in_channels // reduction, in_channels, bias=False)
+class EDFFN(nn.Module):
+    def __init__(self, dim, ffn_expansion_factor, bias,patch_sizes):    # dim = 32, ffn_expansion_factor = 4, bias = True
+        super(EDFFN, self).__init__()
 
-    def forward(self, x):
-        batch_size, channels, _, _ = x.size()
-        y = F.adaptive_avg_pool2d(x, 1).view(batch_size, channels)
-        y = F.relu(self.fc1(y))
-        y = torch.sigmoid(self.fc2(y)).view(batch_size, channels, 1, 1)
-        return x * y
+        hidden_features = int(dim * ffn_expansion_factor)           # 4 * 32 = 128
 
-class SpatialAttention(nn.Module):
-    
-    def __init__(self, kernel_size=7):
-        super(SpatialAttention, self).__init__()
-        self.conv = nn.Conv2d(2, 1, kernel_size=kernel_size, padding=kernel_size // 2, bias=False)
+        self.ffn_expansion_factor = ffn_expansion_factor
+        self.bias = bias
+        self.patch_size1 = patch_sizes[0]
+        self.patch_size2 = patch_sizes[1]
+        self.bias = bias
+        self.dim = dim
 
-    def forward(self, x):
-        avg_out = torch.mean(x, dim=1, keepdim=True)
-        max_out, _ = torch.max(x, dim=1, keepdim=True)
-        y = torch.cat([avg_out, max_out], dim=1)
-        y = torch.sigmoid(self.conv(y))
-        return x * y
+        self.project_in = nn.Conv2d(dim, hidden_features * 2, kernel_size=1, bias=bias)
 
-class FeatureExtractionModule(nn.Module):
-    
-    def __init__(self, in_channels, dropout_rate=0.5):
-        super(FeatureExtractionModule, self).__init__()
-        self.conv = nn.Conv2d(in_channels, in_channels, kernel_size=3, padding=1)
-        self.bn = nn.BatchNorm2d(in_channels)
-        self.relu = nn.ReLU()
-        self.ca = ChannelAttention(in_channels)
-        self.sa = SpatialAttention()
-        self.dropout = nn.Dropout(dropout_rate)
+        self.dwconv = nn.Conv2d(hidden_features * 2, hidden_features * 2, kernel_size=3, stride=1, padding=1,
+                                groups=hidden_features * 2, bias=bias)
 
-        
-        init.kaiming_normal_(self.conv.weight, mode='fan_out', nonlinearity='relu')
-        if self.conv.bias is not None:
-            init.zeros_(self.conv.bias)
-
-    def forward(self, x):
-        residual = x  
-        x = self.conv(x)
-        x = self.bn(x)
-        x = self.relu(x)
-        x = self.ca(x)  
-        x = self.sa(x)  
-        x = self.dropout(x)  
-        return x + residual  
-
-class RealFFT2d(nn.Module):
-
-    def __init__(self):
-        super(RealFFT2d, self).__init__()
+        self.fft1 = nn.Parameter(torch.ones((dim, 1, 1, self.patch_size1, self.patch_size1 // 2 + 1)))
+        self.fft2 = nn.Parameter(torch.ones((dim, 1, 1, self.patch_size2, self.patch_size2 // 2 + 1)))
+        self.project_out = nn.Conv2d(hidden_features, dim, kernel_size=1, bias=bias)
 
     def forward(self, x):
         
-        return torch.fft.rfft2(x, norm='backward')
-
-class InvFFT2d(nn.Module):
-    
-    def __init__(self):
-        super(InvFFT2d, self).__init__()
-
-    def forward(self, x):
-        return torch.fft.irfft2(x, norm='backward')
-
-class SpectralModule(nn.Module):
-    
-    def __init__(self, in_channels, out_channels):
-        super(SpectralModule, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels, in_channels, kernel_size=3, padding=1, stride=1)  
-        self.bn1 = nn.BatchNorm2d(in_channels)
-        self.fft = RealFFT2d()
-        self.conv2 = nn.Conv2d(2 * in_channels, in_channels, kernel_size=3, padding=1, stride=1)  
-        self.bn2 = nn.BatchNorm2d(in_channels)
-        self.inv_fft = InvFFT2d()
-        self.conv_final = nn.Conv2d(in_channels, out_channels, kernel_size=1, padding=0)
-
+        x = self.project_in(x)  
+       
+        x1, x2 = self.dwconv(x).chunk(2, dim=1)        
         
-        init.kaiming_normal_(self.conv1.weight, mode='fan_out', nonlinearity='relu')
-        init.kaiming_normal_(self.conv2.weight, mode='fan_out', nonlinearity='relu')
-        init.kaiming_normal_(self.conv_final.weight, mode='fan_out', nonlinearity='relu')
+        x = F.gelu(x1) * x2         
+       
+        x = self.project_out(x)         
+        
+        
+        
+        # print("patch_size1",self.patch_size1)
+        # print("patch_size2",self.patch_size2) 
+        x1_patch = rearrange(x, 'b c (h patch1) (w patch2) -> b c h w patch1 patch2', patch1=self.patch_size1,
+                            patch2=self.patch_size1)
+        
+        x1_patch_fft = torch.fft.rfft2(x1_patch.float())  
+        
+        x1_patch_fft = x1_patch_fft * self.fft1
+       
+        x1_patch = torch.fft.irfft2(x1_patch_fft, s=(self.patch_size1, self.patch_size1))
+        
+        x1 = rearrange(x1_patch, 'b c h w patch1 patch2 -> b c (h patch1) (w patch2)', patch1=self.patch_size1,
+                      patch2=self.patch_size1)
+        
+        x2_patch = rearrange(x, 'b c (h patch1) (w patch2) -> b c h w patch1 patch2', patch1=self.patch_size2,
+                            patch2=self.patch_size2)
+        
+        x2_patch_fft = torch.fft.rfft2(x2_patch.float())  
+        
+        x2_patch_fft = x2_patch_fft * self.fft2
+       
+        x2_patch = torch.fft.irfft2(x2_patch_fft, s=(self.patch_size2, self.patch_size2))
+        
+        x2 = rearrange(x2_patch, 'b c h w patch1 patch2 -> b c (h patch1) (w patch2)', patch1=self.patch_size2,
+                      patch2=self.patch_size2)
+        
 
-    def forward(self, x):
-        residual = x  
-        x = F.relu(self.bn1(self.conv1(x)))
-        x = self.fft(x)
-        real_part = torch.real(x)
-        imag_part = torch.imag(x)
-        combined = torch.cat([real_part, imag_part], dim=1)  
-        x = F.relu(self.bn2(self.conv2(combined)))
-        x = self.inv_fft(x)
-        x = self.conv_final(x)
-        return x + residual  
-
-class FGA(nn.Module):
+        x = x1 + x2
+        
+        return x
     
-    def __init__(self, in_channels):
-        super(FGA, self).__init__()
-        self.feature_extraction = FeatureExtractionModule(in_channels)
-        self.spectral_module = SpectralModule(in_channels, in_channels)
-        self.final_conv = nn.Conv2d(in_channels, in_channels, kernel_size=1) 
-
-    def forward(self, x):
-        x = self.feature_extraction(x)
-        spectral_features = self.spectral_module(x)
-        return self.final_conv(spectral_features)
-
-if __name__ == "__main__":
-    input_tensor = torch.randn(6, 40, 32, 32)  
-    model = FGA(in_channels=40) 
-    output = model(input_tensor)  
-    print("Output shape:", output.shape)  
