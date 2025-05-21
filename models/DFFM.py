@@ -1,20 +1,24 @@
 import torch
 from torch import nn
+
+import models.hotfeat as hotfeat
+
+import torchvision.ops as ops
 from models.MSEE import msee
-from models.MPNS import FGA
+from models.MPNS import EDFFN
 
 
 
 
 class DFFM(nn.Module):
-    def __init__(self, in_channels, out_channels, sample, up=True, kernel_list=[3, 9]):
+    def __init__(self, in_channels, out_channels, sample, patchsizes,up=True,kernel_list=[3, 9]):
         super().__init__()
 
         # Deformable Multi-Scale Attention Fusion
         self.msf = msee(in_channels,kernel_list=kernel_list)
         
         # Dual Fourier-Feature Guided Attention
-        self.mpf = FGA(in_channels)
+        self.mpf = EDFFN(in_channels,ffn_expansion_factor=4,bias=True,patch_sizes=patchsizes)
         self.mlp = nn.Sequential(
                 nn.BatchNorm2d(in_channels * 2),  
                 nn.Conv2d(in_channels * 2, out_channels, 1), 
@@ -36,9 +40,18 @@ class DFFM(nn.Module):
     def forward(self, x):
         x_msf = self.msf(x)
         x_mpf = self.mpf(x)
-        x_cat = torch.cat([x_msf, x_mpf], dim=1)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+        
+        x_cat = torch.cat([x_msf, x_mpf], dim=1)      
+        # hotfeat.feature_vis(x_cat, "x_cat",isMax=False, save_path="/home/wjj/My_model/test_model_main/热力图")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
         x = self.mlp(x_cat)  
+        
         if self.sample is not None:
             x = self.sample(x)
         
         return x
+    
+if __name__ == '__main__':
+    x = torch.randn(1, 32, 512, 512)
+    model = DFFM(32, 32, sample=True, up=True, patchsizes=[32, 128])
+    y = model(x)
+    print(y.shape)
