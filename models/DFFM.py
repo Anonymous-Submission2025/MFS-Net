@@ -36,13 +36,17 @@ class DFFM(nn.Module):
             self.sample = None
 
         self.reduce_channels = nn.Conv2d(in_channels * 2, in_channels, kernel_size=1, stride=1)
+        self.linear = nn.Linear(in_features=10, out_features=5, bias=True)
 
     def forward(self, x):
         x_msf = self.msf(x)
+
+        x=self.linear(x)
         x_mpf = self.mpf(x)
+        x_mpf = x + x_mpf
         
         x_cat = torch.cat([x_msf, x_mpf], dim=1)      
-        # hotfeat.feature_vis(x_cat, "x_cat",isMax=False, save_path="/home/wjj/My_model/test_model_main/热力图")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+        # hotfeat.feature_vis(x_cat, "x_cat",isMax=False, save_path="/home/wjj/My_model/test_model_main/热力图")                                                                                                                                             
         x = self.mlp(x_cat)  
         
         if self.sample is not None:
