@@ -5,7 +5,7 @@ import models.hotfeat as hotfeat
 
 import torchvision.ops as ops
 from models.MSEE import msee
-from models.MPNS import EDFFN
+from models.MPNS import DPFE
 
 
 
@@ -18,7 +18,7 @@ class DFFM(nn.Module):
         self.msf = msee(in_channels,kernel_list=kernel_list)
         
         # Dual Fourier-Feature Guided Attention
-        self.mpf = EDFFN(in_channels,ffn_expansion_factor=4,bias=True,patch_sizes=patchsizes)
+        self.mpf = DPFE(in_channels,ffn_expansion_factor=4,bias=True,patch_sizes=patchsizes)
         self.mlp = nn.Sequential(
                 nn.BatchNorm2d(in_channels * 2),  
                 nn.Conv2d(in_channels * 2, out_channels, 1), 
