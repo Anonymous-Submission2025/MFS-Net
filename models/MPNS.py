@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from einops import rearrange
 import models.hotfeat as hotfeat
 
-class EDFFN(nn.Module):
+class DPFE(nn.Module):
     def __init__(self, dim, ffn_expansion_factor, bias,patch_sizes):    # dim = 32, ffn_expansion_factor = 4, bias = True
         super(EDFFN, self).__init__()
 
