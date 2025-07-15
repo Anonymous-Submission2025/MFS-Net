@@ -8,9 +8,7 @@
 
 ##  Abstract
 
-In medical images, the co-occurrence phenomenon often makes it difficult for the model to distinguish target features from background interference. In addition, the problem of blurred and irregular edge contours is also particularly common in medical image segmentation, which usually leads to unclear edges in the segmentation results. To address these problems, this paper proposes a novel medical image segmentation framework MFS-Net. The network adopts a dual-branch feature fusion module (DFFM) as its backbone. 
-In the DPFE block, we propose a novel patch partitioning strategy, which uses the design of dual-size patches to efficiently separate and capture high-frequency textures and low-frequency overall structures in the frequency domain. And by introducing a learnable quantization matrix W, the key frequency components are adaptively screened and amplified to suppress noise interference. In addition, we use multi-scale deformable learning to dynamically adjust the sampling grid to accurately capture multi-scale edge features that are robust to boundary blur. 
-Through extensive experiments on four medical image datasets, it is demonstrated that our method achieves state-of-the-art performance and universality.
+In medical images, the ubiquitous co-occurrence phenomenon makes it difficult for the model to effectively distinguish target features from interfering background information. At the same time, the problems of blurred edge contours and irregular shapes further affect the edge clarity of the segmentation results. To address the above challenges, this paper proposes a new medical image segmentation framework MFS-Net. This paper designs a DPFA module, which performs preliminary spatial frequency decomposition through a frequency domain perception module and uses a dual-size patch partitioning strategy to further enhance the perception of local details and global structures. Subsequently, with the help of FFT and a learnable quantization matrix W, we can adaptively screen and amplify key frequency components to suppress noise interference. In addition, this paper uses a multi-scale deformable learning mechanism to dynamically adjust the sampling grid, so as to robustly extract multi-scale edge features in edge fuzzy areas. Through extensive experiments on four benchmark medical image datasets, it is demonstrated that our method achieves state-of-the-art performance and effectiveness.
 
 ##  Introduction
 
@@ -26,7 +24,7 @@ Major challenges in medical image segmentation.
 <img width="800" alt="image" src="asserts/MFS-Net.png?raw=true">
 </div>
 
-The overall framework of the proposed MFS-Net. Our network architecture adopts a dual-branch structure and consists of four levels. Each level contains a multi-frequency noise suppression (MFNS) module and a multi-scale edge enhancement (MSEE) module. MFNS contains our proposed dual patch Fourier enhancement (DPFE). Each MSEE contains a multi-scale deformable convolution (MSDC) module and a spatial channel attention mechanism.
+The overall architecture of MFS-Net.
 
 ##  TODO
 
