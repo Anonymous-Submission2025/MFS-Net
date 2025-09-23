@@ -10,14 +10,6 @@
 
 In medical images, the ubiquitous co-occurrence phenomenon makes it difficult for the model to effectively distinguish target features from interfering background information. At the same time, the problems of blurred edge contours and irregular shapes further affect the edge clarity of the segmentation results. To address the above challenges, this paper proposes a new medical image segmentation framework DFM-Net. Our DPFA module performs preliminary spatial frequency decomposition using a frequency-aware block and uses a dual-size patch partitioning strategy to further enhance the perception of local details and global structures. This design effectively eliminates and filters interfering background information across different frequency domains.In addition, we integrate dual-scale convolutional kernels and a bidirectional resampling path, and employ a learnable offset field to dynamically adapt to irregular edge contours. Through extensive experiments on four benchmark medical image datasets, it is demonstrated that our method achieves state-of-the-art performance and effectiveness. 
 
-##  Introduction
-
-<div align="center">
-    <img width="800" alt="image" src="asserts/challen_.png?raw=true">
-</div>
-
-Major challenges in medical image segmentation.
-
 ##  Overview
 
 <div align="center">
@@ -72,22 +64,8 @@ concrete information see test.py, please
 ```
 
 
-##  Quantitative comparison
-
-<div align="center">
-<img width="800" alt="image" src="asserts/compara.jpg?raw=true">
-</div>
-
-<div align="center">
-    Comparison with other methods on the ISIC2018, Kvasir, COVID-19 and Moun-Seg datasets.
-</div>
 
 
-##  Visualization
-
-<div align="center">
-<img width="800" alt="image" src="asserts/Visualization.jpg?raw=true">
-</div>
 
 
 
