@@ -3,7 +3,7 @@ from models.DFFM import DFFM
 
 
 
-class MFS_net(nn.Module):
+class DFM-Net(nn.Module):
     def __init__(self,input_channels=3, out_channels:list=None,kernel_list=None):
         super().__init__()
         #encoding
@@ -100,3 +100,4 @@ class PH(nn.Module):
         x3=self.ph3(x3)
         x4=self.ph4(x4)
         return [x1,x2,x3,x4]
+
