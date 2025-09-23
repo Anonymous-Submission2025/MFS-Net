@@ -4,7 +4,7 @@
 
 ##  News
 
-- [2025.5.21] Training and inference code released
+- [2025.9.21] Training and inference code released
 
 ##  Abstract
 
